@@ -175,7 +175,7 @@ export default function SriPage() {
   const descargarRide = async (id: string) => {
     try {
       const token = localStorage.getItem('pos_token');
-      const res = await fetch(`${API}/sri/ride/${id}/download`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      const res = await fetch(`${API_URL}/sri/ride/${id}/download`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       if (!res.ok) throw new Error('Error al descargar');
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
