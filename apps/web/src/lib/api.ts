@@ -1,0 +1,210 @@
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+export const WS_URL = process.env.NEXT_PUBLIC_WS_URL || API_URL;
+
+class ApiClient {
+  private token: string | null = null;
+
+  setToken(token: string) {
+    this.token = token;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pos_token', token);
+    }
+  }
+
+  getToken(): string | null {
+    if (this.token) return this.token;
+    if (typeof window !== 'undefined') {
+      this.token = localStorage.getItem('pos_token');
+    }
+    return this.token;
+  }
+
+  clearToken() {
+    this.token = null;
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('pos_token');
+      localStorage.removeItem('pos_refresh_token');
+      localStorage.removeItem('pos_user');
+      // NOTE: pos_tenant is intentionally kept so PIN login works after logout
+    }
+  }
+
+  async request<T>(path: string, options: RequestInit = {}): Promise<T> {
+    const headers: any = { 'Content-Type': 'application/json', ...options.headers };
+    const token = this.getToken();
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await fetch(`${API_URL}${path}`, { ...options, headers });
+
+    if (res.status === 401) {
+      this.clearToken();
+      if (typeof window !== 'undefined') window.location.href = '/login';
+      throw new Error('No autorizado');
+    }
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ message: 'Error del servidor' }));
+      throw new Error(error.message || `Error ${res.status}`);
+    }
+
+    const text = await res.text();
+    if (!text) return null as T;
+    return JSON.parse(text);
+  }
+
+  // ── Generic CRUD ──
+  async get<T = any>(path: string): Promise<T> {
+    return this.request<T>(path);
+  }
+
+  async post<T = any>(path: string, body?: any): Promise<T> {
+    return this.request<T>(path, { method: 'POST', body: body != null ? JSON.stringify(body) : undefined });
+  }
+
+  async put<T = any>(path: string, body?: any): Promise<T> {
+    return this.request<T>(path, { method: 'PUT', body: body != null ? JSON.stringify(body) : undefined });
+  }
+
+  async patch<T = any>(path: string, body?: any): Promise<T> {
+    return this.request<T>(path, { method: 'PATCH', body: body != null ? JSON.stringify(body) : undefined });
+  }
+
+  async del<T = any>(path: string): Promise<T> {
+    return this.request<T>(path, { method: 'DELETE' });
+  }
+
+  // ── Auth ──
+  async login(email: string, password: string) {
+    const data = await this.request<any>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+    this.setToken(data.accessToken);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pos_refresh_token', data.refreshToken);
+      localStorage.setItem('pos_user', JSON.stringify(data.user));
+      localStorage.setItem('pos_tenant', JSON.stringify(data.tenant));
+    }
+    return data;
+  }
+
+  async pinLogin(tenantId: string, pin: string) {
+    const data = await this.request<any>('/auth/pin-login', {
+      method: 'POST',
+      body: JSON.stringify({ tenantId, pin }),
+    });
+    this.setToken(data.accessToken);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pos_refresh_token', data.refreshToken);
+      localStorage.setItem('pos_user', JSON.stringify(data.user));
+      localStorage.setItem('pos_tenant', JSON.stringify(data.tenant));
+    }
+    return data;
+  }
+
+  async forgotPassword(email: string) {
+    return this.request<any>('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    return this.request<any>('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ token, newPassword }),
+    });
+  }
+
+  async getProfile() {
+    return this.request<any>('/auth/profile');
+  }
+
+  // ── Products ──
+  async getProducts(params?: { categoryId?: string; search?: string }) {
+    const query = new URLSearchParams();
+    if (params?.categoryId && params.categoryId !== 'null') query.set('categoryId', params.categoryId);
+    if (params?.search && params.search.trim() !== '') query.set('search', params.search);
+    const qs = query.toString();
+    return this.request<any>(`/products${qs ? `?${qs}` : ''}`);
+  }
+
+  async getCategories() {
+    return this.request<any[]>('/products/categories');
+  }
+
+  // ── Orders ──
+  async getOpenOrders() {
+    return this.request<any[]>('/orders/open');
+  }
+
+  async getOrder(id: string) {
+    return this.request<any>(`/orders/${id}`);
+  }
+
+  async createOrder(data: { type?: string; metadata?: any; notes?: string }) {
+    return this.request<any>('/orders', { method: 'POST', body: JSON.stringify(data) });
+  }
+
+  async addOrderItem(orderId: string, data: { productId: string; quantity?: number; notes?: string; modifiers?: any[] }) {
+    return this.request<any>(`/orders/${orderId}/items`, { method: 'POST', body: JSON.stringify(data) });
+  }
+
+  async voidOrderItem(orderId: string, itemId: string, reason: string) {
+    return this.request<any>(`/orders/${orderId}/items/${itemId}/void`, {
+      method: 'PATCH', body: JSON.stringify({ reason }),
+    });
+  }
+
+  async processPayment(orderId: string, data: { method: string; amount: number; cashReceived?: number; reference?: string }) {
+    return this.request<any>(`/orders/${orderId}/payments`, { method: 'POST', body: JSON.stringify(data) });
+  }
+
+  async cancelOrder(orderId: string) {
+    return this.request<any>(`/orders/${orderId}/cancel`, { method: 'PATCH' });
+  }
+
+  // ── Split Bill ──
+  async getOrderSplits(orderId: string) {
+    return this.request<any>(`/orders/${orderId}/splits`);
+  }
+
+  async splitEqual(orderId: string, data: { numberOfGuests: number; guestNames?: string[] }) {
+    return this.request<any>(`/orders/${orderId}/splits/equal`, { method: 'POST', body: JSON.stringify(data) });
+  }
+
+  async splitByItems(orderId: string, data: { numberOfGuests: number; guestNames?: string[]; assignments: { guestIndex: number; itemIds: string[] }[] }) {
+    return this.request<any>(`/orders/${orderId}/splits/by-items`, { method: 'POST', body: JSON.stringify(data) });
+  }
+
+  async splitCustom(orderId: string, data: { guests: { name?: string; amount: number }[] }) {
+    return this.request<any>(`/orders/${orderId}/splits/custom`, { method: 'POST', body: JSON.stringify(data) });
+  }
+
+  async processSplitPayment(orderId: string, splitId: string, data: { method: string; amount: number; cashReceived?: number }) {
+    return this.request<any>(`/orders/${orderId}/splits/${splitId}/payments`, { method: 'POST', body: JSON.stringify(data) });
+  }
+
+  async removeSplits(orderId: string) {
+    return this.request<any>(`/orders/${orderId}/splits`, { method: 'DELETE' });
+  }
+
+  // ── Promotions ──
+  async applyPromotions(orderId: string) {
+    return this.request<any>(`/promotions/orders/${orderId}/apply`, { method: 'POST' });
+  }
+
+  async applyCoupon(orderId: string, couponCode: string) {
+    return this.request<any>(`/promotions/orders/${orderId}/coupon`, { method: 'POST', body: JSON.stringify({ couponCode }) });
+  }
+
+  async removePromotion(orderId: string, promotionId: string) {
+    return this.request<any>(`/promotions/orders/${orderId}/${promotionId}`, { method: 'DELETE' });
+  }
+
+  async getOrderPromotions(orderId: string) {
+    return this.request<any>(`/promotions/orders/${orderId}`);
+  }
+}
+
+export const api = new ApiClient();

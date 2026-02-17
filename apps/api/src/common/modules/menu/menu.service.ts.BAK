@@ -1,0 +1,115 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../prisma.service';
+
+const DEFAULT_BRANDING = {
+  accentColor: '#2563eb',
+  primaryColor: '#1e3a8a',
+  logoUrl: null,
+  appName: '',
+};
+
+@Injectable()
+export class MenuService {
+  constructor(private prisma: PrismaService) {}
+
+  async getMenuBySlug(slug: string) {
+    const tenant = await this.prisma.tenant.findFirst({
+      where: { slug, isActive: true },
+      include: {
+        reseller: { select: { themeConfig: true, logoUrl: true } },
+      },
+    });
+    if (!tenant) throw new NotFoundException('Restaurante no encontrado');
+
+    // Merge branding: tenant > reseller > default
+    const tenantSettings = (tenant.settings as any) || {};
+    const tenantBranding = tenantSettings.branding || {};
+    const resellerBranding = (tenant.reseller?.themeConfig as any) || {};
+    const branding = {
+      ...DEFAULT_BRANDING,
+      appName: tenant.name,
+      ...resellerBranding,
+      ...tenantBranding,
+      logoUrl: tenant.logoUrl || tenantBranding.logoUrl || resellerBranding.logoUrl || tenant.reseller?.logoUrl || null,
+    };
+
+    // Get categories + products in two efficient queries
+    const [categories, products] = await Promise.all([
+      this.prisma.productCategory.findMany({
+        where: { tenantId: tenant.id, isActive: true },
+        orderBy: { displayOrder: 'asc' },
+        select: { id: true, name: true, description: true, imageUrl: true },
+      }),
+      this.prisma.product.findMany({
+        where: { tenantId: tenant.id, isActive: true, isAvailable: true },
+        orderBy: { displayOrder: 'asc' },
+        select: { id: true, categoryId: true, name: true, description: true, price: true, imageUrl: true, tags: true, attributes: true },
+      }),
+    ]);
+
+    // Build map for O(n) grouping
+    const productsByCategory = new Map<string, typeof products>();
+    const uncategorized: typeof products = [];
+    for (const p of products) {
+      if (!p.categoryId) { uncategorized.push(p); continue; }
+      const arr = productsByCategory.get(p.categoryId) || [];
+      arr.push(p);
+      productsByCategory.set(p.categoryId, arr);
+    }
+
+    const menu = categories
+      .map(cat => ({
+        id: cat.id,
+        name: cat.name,
+        description: cat.description,
+        imageUrl: cat.imageUrl,
+        products: (productsByCategory.get(cat.id) || []).map(p => ({
+          id: p.id, name: p.name, description: p.description,
+          price: parseFloat(p.price.toString()),
+          imageUrl: p.imageUrl, tags: p.tags, attributes: p.attributes,
+        })),
+      }))
+      .filter(c => c.products.length > 0);
+
+    if (uncategorized.length > 0) {
+      menu.push({
+        id: 'other', name: 'Otros', description: null, imageUrl: null,
+        products: uncategorized.map(p => ({
+          id: p.id, name: p.name, description: p.description,
+          price: parseFloat(p.price.toString()),
+          imageUrl: p.imageUrl, tags: p.tags, attributes: p.attributes,
+        })),
+      });
+    }
+
+    return {
+      restaurant: { name: tenant.name, slug: tenant.slug, currencyCode: tenant.currencyCode, phone: tenant.phone },
+      branding,
+      settings: { defaultTaxRate: tenantSettings.defaultTaxRate ?? 15, currency: tenantSettings.currency || { code: tenant.currencyCode, symbol: '$', decimals: 2 } },
+      menu,
+      totalProducts: products.length,
+    };
+  }
+
+  async getQrConfig(tenantId: string) {
+    const tenant = await this.prisma.tenant.findFirst({ where: { id: tenantId } });
+    if (!tenant) throw new NotFoundException('Tenant no encontrado');
+
+    const tables: any[] = await this.prisma.$queryRaw`
+      SELECT t.id, t.number, t.capacity, t.shape, z.name as zone_name, z.color as zone_color
+      FROM tables t JOIN zones z ON z.id = t.zone_id
+      WHERE t.tenant_id = ${tenantId}::uuid AND t.is_active = true
+      ORDER BY z.name, t.number
+    `;
+
+    return {
+      slug: tenant.slug,
+      name: tenant.name,
+      menuUrl: `/menu/${tenant.slug}`,
+      tables: tables.map(t => ({
+        ...t,
+        qrUrl: `/menu/${tenant.slug}?table=${t.number}`,
+      })),
+    };
+  }
+}

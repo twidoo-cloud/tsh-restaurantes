@@ -1,0 +1,361 @@
+import { PrismaService } from '../../prisma.service';
+import { UpdateSriConfigDto, EmitirFacturaDto, EmitirNotaCreditoDto, AnularComprobanteDto } from './dto/sri.dto';
+export declare class SriService {
+    private prisma;
+    constructor(prisma: PrismaService);
+    getConfig(tenantId: string): Promise<{
+        certP12Password: string;
+        smtpPassword: string;
+        hasCertificate: boolean;
+        hasSmtp: boolean;
+        id: string;
+        tenantId: string;
+        createdAt: Date;
+        updatedAt: Date;
+        logoUrl: string | null;
+        ruc: string;
+        razonSocial: string;
+        nombreComercial: string | null;
+        direccionMatriz: string;
+        obligadoContabilidad: boolean;
+        contribuyenteEspecial: string | null;
+        regimenRimpe: boolean;
+        ambiente: string;
+        establecimiento: string;
+        puntoEmision: string;
+        emailNotificacion: string | null;
+        smtpHost: string | null;
+        smtpPort: number | null;
+        smtpUser: string | null;
+        smtpFromName: string | null;
+        smtpSecure: boolean;
+        tipoEmision: string;
+        secuencialFactura: number;
+        secuencialNotaCredito: number;
+        secuencialRetencion: number;
+        certP12Path: string | null;
+    }>;
+    updateConfig(tenantId: string, dto: UpdateSriConfigDto): Promise<{
+        id: string;
+        tenantId: string;
+        createdAt: Date;
+        updatedAt: Date;
+        logoUrl: string | null;
+        ruc: string;
+        razonSocial: string;
+        nombreComercial: string | null;
+        direccionMatriz: string;
+        obligadoContabilidad: boolean;
+        contribuyenteEspecial: string | null;
+        regimenRimpe: boolean;
+        ambiente: string;
+        establecimiento: string;
+        puntoEmision: string;
+        emailNotificacion: string | null;
+        smtpHost: string | null;
+        smtpPort: number | null;
+        smtpUser: string | null;
+        smtpPassword: string | null;
+        smtpFromName: string | null;
+        smtpSecure: boolean;
+        tipoEmision: string;
+        secuencialFactura: number;
+        secuencialNotaCredito: number;
+        secuencialRetencion: number;
+        certP12Path: string | null;
+        certP12Password: string | null;
+    }>;
+    uploadCertificate(tenantId: string, fileBuffer: Buffer, originalName: string, password: string): Promise<{
+        success: boolean;
+        message: string;
+        certificate: {
+            fileName: string;
+            issuer: string;
+            serialNumber: string;
+            validFrom: string;
+            validTo: string;
+        };
+    }>;
+    deleteCertificate(tenantId: string): Promise<{
+        success: boolean;
+        message: string;
+    }>;
+    emitirFactura(tenantId: string, dto: EmitirFacturaDto): Promise<{
+        id: string;
+        claveAcceso: string;
+        secuencial: string;
+        estado: string;
+        message: string;
+    }>;
+    emitirNotaCredito(tenantId: string, dto: EmitirNotaCreditoDto): Promise<{
+        id: string;
+        claveAcceso: string;
+        secuencial: string;
+        estado: string;
+        tipoComprobante: string;
+        message: string;
+    }>;
+    anularComprobante(tenantId: string, invoiceId: string, dto: AnularComprobanteDto): Promise<{
+        id: string;
+        estado: string;
+        message: string;
+        notaCreditoId?: undefined;
+        notaCreditoEstado?: undefined;
+    } | {
+        id: string;
+        estado: string;
+        notaCreditoId: string;
+        notaCreditoEstado: string;
+        message: string;
+    }>;
+    firmarFactura(tenantId: string, invoiceId: string): Promise<{
+        id: string;
+        estado: string;
+        message: string;
+    }>;
+    enviarAlSri(tenantId: string, invoiceId: string): Promise<{
+        estado: string;
+        numeroAutorizacion: string;
+        fechaAutorizacion: string;
+        errores?: undefined;
+        message?: undefined;
+    } | {
+        estado: string;
+        errores: import("./sri-soap").SriMensaje[];
+        numeroAutorizacion?: undefined;
+        fechaAutorizacion?: undefined;
+        message?: undefined;
+    } | {
+        estado: string;
+        message: string;
+        numeroAutorizacion?: undefined;
+        fechaAutorizacion?: undefined;
+        errores?: undefined;
+    }>;
+    consultarEstado(tenantId: string, invoiceId: string): Promise<{
+        estado: string;
+        numeroAutorizacion: string;
+        fechaAutorizacion: string;
+        errores?: undefined;
+        message?: undefined;
+    } | {
+        estado: string;
+        errores: import("./sri-soap").SriMensaje[];
+        numeroAutorizacion?: undefined;
+        fechaAutorizacion?: undefined;
+        message?: undefined;
+    } | {
+        estado: string;
+        message: string;
+        numeroAutorizacion?: undefined;
+        fechaAutorizacion?: undefined;
+        errores?: undefined;
+    }>;
+    enviarEmail(tenantId: string, invoiceId: string, emailTo: string): Promise<{
+        success: boolean;
+        message: string;
+        messageId: string;
+    } | {
+        success: boolean;
+        message: string;
+        messageId?: undefined;
+    }>;
+    generateRide(tenantId: string, invoiceId: string): Promise<{
+        id: string;
+        rideUrl: string;
+        message: string;
+    }>;
+    downloadRide(tenantId: string, invoiceId: string): Promise<{
+        buffer: Buffer;
+        filename: string;
+    }>;
+    private buildSriConfig;
+    private buildRideData;
+    getInvoices(tenantId: string, page?: number, limit?: number): Promise<{
+        data: ({
+            order: {
+                total: import("@prisma/client/runtime/library").Decimal;
+                orderNumber: string;
+            };
+        } & {
+            id: string;
+            tenantId: string;
+            branchId: string | null;
+            createdAt: Date;
+            updatedAt: Date;
+            total: import("@prisma/client/runtime/library").Decimal;
+            orderId: string | null;
+            tipoIdentificacion: string | null;
+            estado: string;
+            claveAcceso: string;
+            numeroAutorizacion: string | null;
+            fechaAutorizacion: Date | null;
+            tipoComprobante: string;
+            secuencial: string;
+            fechaEmision: Date;
+            rucEmisor: string;
+            razonSocialComprador: string | null;
+            identificacionComprador: string | null;
+            subtotalSinIva: import("@prisma/client/runtime/library").Decimal;
+            subtotalIva: import("@prisma/client/runtime/library").Decimal;
+            iva: import("@prisma/client/runtime/library").Decimal;
+            xmlGenerado: string | null;
+            xmlFirmado: string | null;
+            xmlAutorizado: string | null;
+            errores: import("@prisma/client/runtime/library").JsonValue;
+            rideUrl: string | null;
+            emailEnviado: boolean;
+            facturaOrigenId: string | null;
+            motivoAnulacion: string | null;
+        })[];
+        total: number;
+        page: number;
+        limit: number;
+    }>;
+    getInvoice(tenantId: string, id: string): Promise<{
+        order: {
+            items: ({
+                product: {
+                    description: string | null;
+                    id: string;
+                    tenantId: string;
+                    createdAt: Date;
+                    name: string;
+                    isActive: boolean;
+                    updatedAt: Date;
+                    tags: string[];
+                    categoryId: string | null;
+                    price: import("@prisma/client/runtime/library").Decimal;
+                    cost: import("@prisma/client/runtime/library").Decimal | null;
+                    sku: string | null;
+                    barcode: string | null;
+                    taxRate: import("@prisma/client/runtime/library").Decimal;
+                    unit: string;
+                    trackInventory: boolean;
+                    imageUrl: string | null;
+                    displayOrder: number;
+                    attributes: import("@prisma/client/runtime/library").JsonValue;
+                    currentStock: import("@prisma/client/runtime/library").Decimal;
+                    minStock: import("@prisma/client/runtime/library").Decimal;
+                    isAvailable: boolean;
+                };
+            } & {
+                id: string;
+                tenantId: string;
+                createdAt: Date;
+                productId: string;
+                metadata: import("@prisma/client/runtime/library").JsonValue;
+                notes: string | null;
+                productVariantId: string | null;
+                quantity: import("@prisma/client/runtime/library").Decimal;
+                modifiers: import("@prisma/client/runtime/library").JsonValue;
+                modifiersTotal: import("@prisma/client/runtime/library").Decimal;
+                subtotal: import("@prisma/client/runtime/library").Decimal;
+                taxAmount: import("@prisma/client/runtime/library").Decimal;
+                discountAmount: import("@prisma/client/runtime/library").Decimal;
+                discountReason: string | null;
+                orderId: string;
+                unitPrice: import("@prisma/client/runtime/library").Decimal;
+                isVoid: boolean;
+                voidReason: string | null;
+                promotionId: string | null;
+            })[];
+            payments: {
+                id: string;
+                tenantId: string;
+                createdAt: Date;
+                currencyCode: string;
+                method: string;
+                amount: import("@prisma/client/runtime/library").Decimal;
+                reference: string | null;
+                cashReceived: import("@prisma/client/runtime/library").Decimal | null;
+                orderId: string;
+                splitId: string | null;
+                processedBy: string | null;
+                changeGiven: import("@prisma/client/runtime/library").Decimal | null;
+            }[];
+        } & {
+            id: string;
+            tenantId: string;
+            branchId: string | null;
+            createdAt: Date;
+            type: string;
+            updatedAt: Date;
+            total: import("@prisma/client/runtime/library").Decimal;
+            metadata: import("@prisma/client/runtime/library").JsonValue;
+            customerId: string | null;
+            notes: string | null;
+            status: string;
+            orderNumber: string;
+            servedBy: string | null;
+            shiftId: string | null;
+            subtotal: import("@prisma/client/runtime/library").Decimal;
+            taxAmount: import("@prisma/client/runtime/library").Decimal;
+            discountAmount: import("@prisma/client/runtime/library").Decimal;
+            discountReason: string | null;
+            openedAt: Date;
+            closedAt: Date | null;
+        };
+        notasCredito: {
+            id: string;
+            tenantId: string;
+            branchId: string | null;
+            createdAt: Date;
+            updatedAt: Date;
+            total: import("@prisma/client/runtime/library").Decimal;
+            orderId: string | null;
+            tipoIdentificacion: string | null;
+            estado: string;
+            claveAcceso: string;
+            numeroAutorizacion: string | null;
+            fechaAutorizacion: Date | null;
+            tipoComprobante: string;
+            secuencial: string;
+            fechaEmision: Date;
+            rucEmisor: string;
+            razonSocialComprador: string | null;
+            identificacionComprador: string | null;
+            subtotalSinIva: import("@prisma/client/runtime/library").Decimal;
+            subtotalIva: import("@prisma/client/runtime/library").Decimal;
+            iva: import("@prisma/client/runtime/library").Decimal;
+            xmlGenerado: string | null;
+            xmlFirmado: string | null;
+            xmlAutorizado: string | null;
+            errores: import("@prisma/client/runtime/library").JsonValue;
+            rideUrl: string | null;
+            emailEnviado: boolean;
+            facturaOrigenId: string | null;
+            motivoAnulacion: string | null;
+        }[];
+    } & {
+        id: string;
+        tenantId: string;
+        branchId: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        total: import("@prisma/client/runtime/library").Decimal;
+        orderId: string | null;
+        tipoIdentificacion: string | null;
+        estado: string;
+        claveAcceso: string;
+        numeroAutorizacion: string | null;
+        fechaAutorizacion: Date | null;
+        tipoComprobante: string;
+        secuencial: string;
+        fechaEmision: Date;
+        rucEmisor: string;
+        razonSocialComprador: string | null;
+        identificacionComprador: string | null;
+        subtotalSinIva: import("@prisma/client/runtime/library").Decimal;
+        subtotalIva: import("@prisma/client/runtime/library").Decimal;
+        iva: import("@prisma/client/runtime/library").Decimal;
+        xmlGenerado: string | null;
+        xmlFirmado: string | null;
+        xmlAutorizado: string | null;
+        errores: import("@prisma/client/runtime/library").JsonValue;
+        rideUrl: string | null;
+        emailEnviado: boolean;
+        facturaOrigenId: string | null;
+        motivoAnulacion: string | null;
+    }>;
+}

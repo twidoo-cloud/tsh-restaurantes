@@ -1,0 +1,7 @@
+{
+  "/inventory/page": "app/inventory/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/loyalty/page": "app/loyalty/page.js",
+  "/sri/page": "app/sri/page.js",
+  "/pos/page": "app/pos/page.js"
+}

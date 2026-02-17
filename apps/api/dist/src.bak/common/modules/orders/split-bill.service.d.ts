@@ -1,0 +1,184 @@
+import { PrismaService } from '../../prisma.service';
+import { PosEventsGateway } from '../../ws/pos-events.gateway';
+import { Decimal } from '@prisma/client/runtime/library';
+import { CreateEqualSplitDto, CreateItemSplitDto, CreateCustomSplitDto, ProcessSplitPaymentDto } from './dto/split-bill.dto';
+export declare class SplitBillService {
+    private prisma;
+    private wsGateway;
+    constructor(prisma: PrismaService, wsGateway: PosEventsGateway);
+    getSplits(tenantId: string, orderId: string): Promise<{
+        orderId: string;
+        orderNumber: string;
+        orderTotal: Decimal;
+        splitCount: number;
+        allPaid: boolean;
+        splits: {
+            amount: number;
+            taxAmount: number;
+            total: number;
+            paidAmount: number;
+            remaining: number;
+            payments: {
+                id: string;
+                tenantId: string;
+                createdAt: Date;
+                currencyCode: string;
+                method: string;
+                amount: Decimal;
+                reference: string | null;
+                cashReceived: Decimal | null;
+                orderId: string;
+                splitId: string | null;
+                processedBy: string | null;
+                changeGiven: Decimal | null;
+            }[];
+            id: string;
+            tenantId: string;
+            createdAt: Date;
+            updatedAt: Date;
+            metadata: import("@prisma/client/runtime/library").JsonValue;
+            status: string;
+            orderId: string;
+            label: string;
+            splitType: string;
+        }[];
+    }>;
+    splitEqual(tenantId: string, orderId: string, dto: CreateEqualSplitDto): Promise<{
+        orderId: string;
+        orderNumber: string;
+        orderTotal: Decimal;
+        splitCount: number;
+        allPaid: boolean;
+        splits: {
+            amount: number;
+            taxAmount: number;
+            total: number;
+            paidAmount: number;
+            remaining: number;
+            payments: {
+                id: string;
+                tenantId: string;
+                createdAt: Date;
+                currencyCode: string;
+                method: string;
+                amount: Decimal;
+                reference: string | null;
+                cashReceived: Decimal | null;
+                orderId: string;
+                splitId: string | null;
+                processedBy: string | null;
+                changeGiven: Decimal | null;
+            }[];
+            id: string;
+            tenantId: string;
+            createdAt: Date;
+            updatedAt: Date;
+            metadata: import("@prisma/client/runtime/library").JsonValue;
+            status: string;
+            orderId: string;
+            label: string;
+            splitType: string;
+        }[];
+    }>;
+    splitByItems(tenantId: string, orderId: string, dto: CreateItemSplitDto): Promise<{
+        orderId: string;
+        orderNumber: string;
+        orderTotal: Decimal;
+        splitCount: number;
+        allPaid: boolean;
+        splits: {
+            amount: number;
+            taxAmount: number;
+            total: number;
+            paidAmount: number;
+            remaining: number;
+            payments: {
+                id: string;
+                tenantId: string;
+                createdAt: Date;
+                currencyCode: string;
+                method: string;
+                amount: Decimal;
+                reference: string | null;
+                cashReceived: Decimal | null;
+                orderId: string;
+                splitId: string | null;
+                processedBy: string | null;
+                changeGiven: Decimal | null;
+            }[];
+            id: string;
+            tenantId: string;
+            createdAt: Date;
+            updatedAt: Date;
+            metadata: import("@prisma/client/runtime/library").JsonValue;
+            status: string;
+            orderId: string;
+            label: string;
+            splitType: string;
+        }[];
+    }>;
+    splitCustom(tenantId: string, orderId: string, dto: CreateCustomSplitDto): Promise<{
+        orderId: string;
+        orderNumber: string;
+        orderTotal: Decimal;
+        splitCount: number;
+        allPaid: boolean;
+        splits: {
+            amount: number;
+            taxAmount: number;
+            total: number;
+            paidAmount: number;
+            remaining: number;
+            payments: {
+                id: string;
+                tenantId: string;
+                createdAt: Date;
+                currencyCode: string;
+                method: string;
+                amount: Decimal;
+                reference: string | null;
+                cashReceived: Decimal | null;
+                orderId: string;
+                splitId: string | null;
+                processedBy: string | null;
+                changeGiven: Decimal | null;
+            }[];
+            id: string;
+            tenantId: string;
+            createdAt: Date;
+            updatedAt: Date;
+            metadata: import("@prisma/client/runtime/library").JsonValue;
+            status: string;
+            orderId: string;
+            label: string;
+            splitType: string;
+        }[];
+    }>;
+    processSplitPayment(tenantId: string, orderId: string, splitId: string, userId: string, dto: ProcessSplitPaymentDto): Promise<{
+        payment: {
+            id: string;
+            tenantId: string;
+            createdAt: Date;
+            currencyCode: string;
+            method: string;
+            amount: Decimal;
+            reference: string | null;
+            cashReceived: Decimal | null;
+            orderId: string;
+            splitId: string | null;
+            processedBy: string | null;
+            changeGiven: Decimal | null;
+        };
+        splitStatus: string;
+        splitPaidAmount: number;
+        splitRemaining: number;
+        allSplitsPaid: boolean;
+        change: number;
+    }>;
+    removeSplits(tenantId: string, orderId: string): Promise<{
+        success: boolean;
+        message: string;
+    }>;
+    private getOrderOrFail;
+    private validateOrderForSplit;
+}

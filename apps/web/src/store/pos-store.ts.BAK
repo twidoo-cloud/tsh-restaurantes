@@ -1,0 +1,209 @@
+import { create } from 'zustand';
+import { api } from '@/lib/api';
+
+interface PosState {
+  user: any | null;
+  tenant: any | null;
+  isAuthenticated: boolean;
+  categories: any[];
+  products: any[];
+  selectedCategory: string | null;
+  searchQuery: string;
+  currentOrder: any | null;
+  isCreatingOrder: boolean;
+  heldOrders: any[];
+  loading: boolean;
+  error: string | null;
+
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => void;
+  restoreSession: () => void;
+  loadCategories: () => Promise<void>;
+  loadProducts: (categoryId?: string, search?: string) => Promise<void>;
+  setSelectedCategory: (id: string | null) => void;
+  setSearchQuery: (q: string) => void;
+  createOrder: (type?: string, metadata?: any) => Promise<void>;
+  addItemToOrder: (productId: string, quantity?: number, notes?: string) => Promise<void>;
+  voidItem: (itemId: string, reason: string) => Promise<void>;
+  processPayment: (method: string, amount: number, cashReceived?: number) => Promise<any>;
+  cancelOrder: () => Promise<void>;
+  loadOrder: (id: string) => Promise<void>;
+  refreshOrder: () => Promise<void>;
+  clearOrder: () => void;
+  clearError: () => void;
+  holdCurrentOrder: () => void;
+  resumeOrder: (order: any) => void;
+  loadHeldOrders: () => Promise<void>;
+}
+
+export const usePosStore = create<PosState>((set, get) => ({
+  user: null,
+  tenant: null,
+  isAuthenticated: false,
+  categories: [],
+  products: [],
+  selectedCategory: null,
+  searchQuery: '',
+  currentOrder: null,
+  isCreatingOrder: false,
+  heldOrders: [],
+  loading: false,
+  error: null,
+
+  login: async (email, password) => {
+    set({ loading: true, error: null });
+    try {
+      const data = await api.login(email, password);
+      set({ user: data.user, tenant: data.tenant, isAuthenticated: true, loading: false });
+    } catch (e: any) {
+      set({ loading: false, error: e.message });
+      throw e;
+    }
+  },
+
+  logout: () => {
+    api.clearToken();
+    set({ user: null, tenant: null, isAuthenticated: false, currentOrder: null, heldOrders: [], categories: [], products: [] });
+  },
+
+  restoreSession: () => {
+    if (typeof window === 'undefined') return;
+    const token = localStorage.getItem('pos_token');
+    const user = localStorage.getItem('pos_user');
+    const tenant = localStorage.getItem('pos_tenant');
+    if (token && user && tenant) {
+      api.setToken(token);
+      set({ user: JSON.parse(user), tenant: JSON.parse(tenant), isAuthenticated: true });
+    }
+  },
+
+  loadCategories: async () => {
+    try {
+      const categories = await api.getCategories();
+      set({ categories });
+    } catch (e: any) { set({ error: e.message }); }
+  },
+
+  loadProducts: async (categoryId, search) => {
+    set({ loading: true });
+    try {
+      const result = await api.getProducts({ categoryId, search });
+      set({ products: result.data, loading: false });
+    } catch (e: any) { set({ loading: false, error: e.message }); }
+  },
+
+  setSelectedCategory: (id) => {
+    set({ selectedCategory: id });
+    get().loadProducts(id || undefined, get().searchQuery || undefined);
+  },
+
+  setSearchQuery: (q) => {
+    set({ searchQuery: q });
+    get().loadProducts(get().selectedCategory || undefined, q || undefined);
+  },
+
+  createOrder: async (type = 'dine_in', metadata) => {
+    set({ isCreatingOrder: true, error: null });
+    try {
+      const order = await api.createOrder({ type, metadata });
+      set({ currentOrder: order, isCreatingOrder: false });
+    } catch (e: any) { set({ isCreatingOrder: false, error: e.message }); }
+  },
+
+  addItemToOrder: async (productId, quantity = 1, notes) => {
+    const { currentOrder } = get();
+    if (!currentOrder) return;
+    try {
+      await api.addOrderItem(currentOrder.id, { productId, quantity, notes });
+      const updated = await api.getOrder(currentOrder.id);
+      set({ currentOrder: updated });
+    } catch (e: any) { set({ error: e.message }); }
+  },
+
+  voidItem: async (itemId, reason) => {
+    const { currentOrder } = get();
+    if (!currentOrder) return;
+    try {
+      const updated = await api.voidOrderItem(currentOrder.id, itemId, reason);
+      set({ currentOrder: updated });
+    } catch (e: any) { set({ error: e.message }); }
+  },
+
+  processPayment: async (method, amount, cashReceived) => {
+    const { currentOrder } = get();
+    if (!currentOrder) return;
+    try {
+      const result = await api.processPayment(currentOrder.id, { method, amount, cashReceived });
+      if (result.orderStatus === 'completed') {
+        set(s => ({ currentOrder: null, heldOrders: s.heldOrders.filter(o => o.id !== currentOrder.id) }));
+      } else {
+        const updated = await api.getOrder(currentOrder.id);
+        set({ currentOrder: updated });
+      }
+      return result;
+    } catch (e: any) { set({ error: e.message }); }
+  },
+
+  cancelOrder: async () => {
+    const { currentOrder } = get();
+    if (!currentOrder) return;
+    try {
+      await api.cancelOrder(currentOrder.id);
+      set(s => ({ currentOrder: null, heldOrders: s.heldOrders.filter(o => o.id !== currentOrder.id) }));
+    } catch (e: any) { set({ error: e.message }); }
+  },
+
+  loadOrder: async (id) => {
+    try {
+      const order = await api.getOrder(id);
+      set({ currentOrder: order });
+    } catch (e: any) { set({ error: e.message }); }
+  },
+
+  refreshOrder: async () => {
+    const { currentOrder } = get();
+    if (!currentOrder) return;
+    try {
+      const order = await api.getOrder(currentOrder.id);
+      set({ currentOrder: order });
+    } catch (e: any) { set({ error: e.message }); }
+  },
+
+  // ── Hold / Park ──
+  holdCurrentOrder: () => {
+    const { currentOrder, heldOrders } = get();
+    if (!currentOrder) return;
+    const alreadyHeld = heldOrders.some(o => o.id === currentOrder.id);
+    set({ heldOrders: alreadyHeld ? heldOrders : [...heldOrders, currentOrder], currentOrder: null });
+  },
+
+  resumeOrder: (order) => {
+    const { currentOrder, heldOrders } = get();
+    let updatedHeld = [...heldOrders];
+    if (currentOrder) {
+      if (!updatedHeld.some(o => o.id === currentOrder.id)) {
+        updatedHeld.push(currentOrder);
+      }
+    }
+    updatedHeld = updatedHeld.filter(o => o.id !== order.id);
+    set({ currentOrder: order, heldOrders: updatedHeld });
+  },
+
+  loadHeldOrders: async () => {
+    try {
+      const openOrders: any = await api.get('/orders/open');
+      const withItems = Array.isArray(openOrders)
+        ? openOrders.filter((o: any) => {
+            const items = Array.isArray(o.items) ? o.items : [];
+            return items.filter((i: any) => i.status !== 'voided').length > 0;
+          })
+        : [];
+      set(s => ({
+        heldOrders: withItems.filter((o: any) => o.id !== s.currentOrder?.id),
+      }));
+    } catch {}
+  },
+
+  clearOrder: () => set({ currentOrder: null }),
+  clearError: () => set({ error: null }),
+}));

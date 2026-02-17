@@ -1,0 +1,553 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Reseller {
+  id           String   @id @default(dbgenerated("uuid_generate_v7()")) @db.Uuid
+  name         String   @db.VarChar(200)
+  slug         String   @unique @db.VarChar(100)
+  domain       String?  @unique @db.VarChar(255)
+  logoUrl      String?  @map("logo_url")
+  themeConfig  Json     @default("{}") @map("theme_config")
+  countryCode  String   @map("country_code") @db.Char(2)
+  contactEmail String   @map("contact_email") @db.VarChar(255)
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+  tenants      Tenant[]
+
+  @@map("resellers")
+}
+
+model AuditLog {
+  id          String   @id @default(dbgenerated("uuid_generate_v7()")) @db.Uuid
+  tenantId    String   @map("tenant_id") @db.Uuid
+  userId      String?  @map("user_id") @db.Uuid
+  userName    String?  @map("user_name") @db.VarChar(200)
+  userRole    String?  @map("user_role") @db.VarChar(50)
+  action      String   @db.VarChar(50)
+  entity      String   @db.VarChar(50)
+  entityId    String?  @map("entity_id") @db.VarChar(100)
+  description String
+  details     Json     @default("{}")
+  ipAddress   String?  @map("ip_address") @db.VarChar(45)
+  userAgent   String?  @map("user_agent")
+  severity    String   @default("info") @db.VarChar(20)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  @@map("audit_logs")
+}
+
+model Tenant {
+  id                 String   @id @default(dbgenerated("uuid_generate_v7()")) @db.Uuid
+  resellerId         String   @map("reseller_id") @db.Uuid
+  name               String   @db.VarChar(200)
+  slug               String   @unique @db.VarChar(100)
+  verticalType       String   @default("restaurant") @map("vertical_type") @db.VarChar(30)
+  enabledModules     String[] @default(["core"]) @map("enabled_modules")
+  taxId              String?  @map("tax_id") @db.VarChar(50)
+  countryCode        String   @map("country_code") @db.Char(2)
+  currencyCode       String   @default("PEN") @map("currency_code") @db.Char(3)
+  timezone           String   @default("America/Lima") @db.VarChar(50)
+  address            Json?
+  phone              String?  @db.VarChar(30)
+  logoUrl            String?  @map("logo_url")
+  settings           Json     @default("{}")
+  subscriptionPlan   String   @default("basic") @map("subscription_plan") @db.VarChar(50)
+  subscriptionStatus String   @default("trial") @map("subscription_status") @db.VarChar(20)
+  trialEndsAt        DateTime? @map("trial_ends_at") @db.Timestamptz()
+  isActive           Boolean  @default(true) @map("is_active")
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt          DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  reseller   Reseller    @relation(fields: [resellerId], references: [id])
+  roles      Role[]
+  users      User[]
+  categories ProductCategory[]
+  products   Product[]
+  orders     Order[]
+  customers  Customer[]
+  promotions Promotion[]
+  creditAccounts CreditAccount[]
+
+  @@map("tenants")
+}
+
+model Role {
+  id          String   @id @default(dbgenerated("uuid_generate_v7()")) @db.Uuid
+  tenantId    String   @map("tenant_id") @db.Uuid
+  name        String   @db.VarChar(100)
+  slug        String   @db.VarChar(100)
+  permissions Json     @default("[]")
+  isSystem    Boolean  @default(false) @map("is_system")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  users  User[]
+
+  @@unique([tenantId, slug])
+  @@map("roles")
+}
+
+model User {
+  id           String    @id @default(dbgenerated("uuid_generate_v7()")) @db.Uuid
+  tenantId     String    @map("tenant_id") @db.Uuid
+  roleId       String    @map("role_id") @db.Uuid
+  email        String    @db.VarChar(255)
+  passwordHash String    @map("password_hash")
+  pinHash      String?   @map("pin_hash")
+  firstName    String    @map("first_name") @db.VarChar(100)
+  lastName     String    @map("last_name") @db.VarChar(100)
+  avatarUrl    String?   @map("avatar_url")
+  isActive     Boolean   @default(true) @map("is_active")
+  lastLoginAt  DateTime? @map("last_login_at") @db.Timestamptz()
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  role   Role   @relation(fields: [roleId], references: [id])
+
+  @@unique([tenantId, email])
+  @@map("users")
+}
+
+model Customer {
+  id          String   @id @default(dbgenerated("uuid_generate_v7()")) @db.Uuid
+  tenantId    String   @map("tenant_id") @db.Uuid
+  name        String   @db.VarChar(200)
+  email       String?  @db.VarChar(255)
+  phone       String?  @db.VarChar(30)
+  taxId       String?  @map("tax_id") @db.VarChar(50)
+  taxIdType   String?  @map("tax_id_type") @db.VarChar(20)
+  address     Json?
+  notes       String?
+  creditAccount CreditAccount?
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  tenant Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  orders Order[]
+
+  @@map("customers")
+}
+
+model ProductCategory {
+  id           String   @id @default(dbgenerated("uuid_generate_v7()")) @db.Uuid
+  tenantId     String   @map("tenant_id") @db.Uuid
+  name         String   @db.VarChar(200)
+  description  String?
+  displayOrder Int      @default(0) @map("display_order")
+  imageUrl     String?  @map("image_url")
+  isActive     Boolean  @default(true) @map("is_active")
+  parentId     String?  @map("parent_id") @db.Uuid
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  tenant   Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  parent   ProductCategory?    @relation("CategoryTree", fields: [parentId], references: [id])
+  children ProductCategory[]   @relation("CategoryTree")
+  products Product[]
+
+  @@map("product_categories")
+}
+
+model Product {
+  id             String   @id @default(dbgenerated("uuid_generate_v7()")) @db.Uuid
+  tenantId       String   @map("tenant_id") @db.Uuid
+  categoryId     String?  @map("category_id") @db.Uuid
+  name           String   @db.VarChar(200)
+  description    String?
+  sku            String?  @db.VarChar(50)
+  barcode        String?  @db.VarChar(50)
+  price          Decimal  @db.Decimal(12, 2)
+  cost           Decimal? @db.Decimal(12, 2)
+  taxRate        Decimal  @default(0.18) @map("tax_rate") @db.Decimal(5, 4)
+  unit           String   @default("unit") @db.VarChar(20)
+  trackInventory Boolean  @default(true) @map("track_inventory")
+  currentStock   Decimal  @default(0) @map("current_stock") @db.Decimal(12, 4)
+  minStock       Decimal  @default(0) @map("min_stock") @db.Decimal(12, 4)
+  imageUrl       String?  @map("image_url")
+  displayOrder   Int      @default(0) @map("display_order")
+  isActive       Boolean  @default(true) @map("is_active")
+  isAvailable    Boolean  @default(true) @map("is_available")
+  tags           String[] @default([])
+  attributes     Json     @default("{}")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  tenant     Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  category   ProductCategory? @relation(fields: [categoryId], references: [id])
+  variants   ProductVariant[]
+  orderItems OrderItem[]
+  recipe     Recipe?
+
+  @@unique([tenantId, sku])
+  @@map("products")
+}
+
+model ProductVariant {
+  id           String   @id @default(dbgenerated("uuid_generate_v7()")) @db.Uuid
+  tenantId     String   @map("tenant_id") @db.Uuid
+  productId    String   @map("product_id") @db.Uuid
+  name         String   @db.VarChar(200)
+  sku          String?  @db.VarChar(50)
+  barcode      String?  @db.VarChar(50)
+  price        Decimal  @db.Decimal(12, 2)
+  cost         Decimal? @db.Decimal(12, 2)
+  currentStock Decimal  @default(0) @map("current_stock") @db.Decimal(12, 4)
+  attributes   Json     @default("{}")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_variants")
+}
+
+model Order {
+  id             String    @id @default(dbgenerated("uuid_generate_v7()")) @db.Uuid
+  tenantId       String    @map("tenant_id") @db.Uuid
+  orderNumber    String    @map("order_number") @db.VarChar(30)
+  customerId     String?   @map("customer_id") @db.Uuid
+  servedBy       String?   @map("served_by") @db.Uuid
+  shiftId        String?   @map("shift_id") @db.Uuid
+  status         String    @default("open") @db.VarChar(20)
+  type           String    @default("sale") @db.VarChar(20)
+  subtotal       Decimal   @default(0) @db.Decimal(12, 2)
+  taxAmount      Decimal   @default(0) @map("tax_amount") @db.Decimal(12, 2)
+  discountAmount Decimal   @default(0) @map("discount_amount") @db.Decimal(12, 2)
+  discountReason String?   @map("discount_reason")
+  total          Decimal   @default(0) @db.Decimal(12, 2)
+  metadata       Json      @default("{}")
+  notes          String?
+  openedAt       DateTime  @default(now()) @map("opened_at") @db.Timestamptz()
+  closedAt       DateTime? @map("closed_at") @db.Timestamptz()
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  tenant   Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer Customer?  @relation(fields: [customerId], references: [id])
+  items    OrderItem[]
+  payments Payment[]
+  splits   OrderSplit[]
+  appliedPromotions AppliedPromotion[]
+  electronicInvoices ElectronicInvoice[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id               String   @id @default(dbgenerated("uuid_generate_v7()")) @db.Uuid
+  tenantId         String   @map("tenant_id") @db.Uuid
+  orderId          String   @map("order_id") @db.Uuid
+  productId        String   @map("product_id") @db.Uuid
+  productVariantId String?  @map("product_variant_id") @db.Uuid
+  quantity         Decimal  @default(1) @db.Decimal(12, 3)
+  unitPrice        Decimal  @map("unit_price") @db.Decimal(12, 2)
+  modifiers        Json     @default("[]")
+  modifiersTotal   Decimal  @default(0) @map("modifiers_total") @db.Decimal(12, 2)
+  subtotal         Decimal  @db.Decimal(12, 2)
+  taxAmount        Decimal  @default(0) @map("tax_amount") @db.Decimal(12, 2)
+  notes            String?
+  isVoid           Boolean  @default(false) @map("is_void")
+  voidReason       String?  @map("void_reason")
+  discountAmount   Decimal  @default(0) @map("discount_amount") @db.Decimal(12, 2)
+  discountReason   String?  @map("discount_reason") @db.VarChar(300)
+  promotionId      String?  @map("promotion_id") @db.Uuid
+  metadata         Json     @default("{}")
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  order     Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product    @relation(fields: [productId], references: [id])
+  promotion Promotion? @relation(fields: [promotionId], references: [id])
+
+  @@map("order_items")
+}
+
+model Payment {
+  id           String   @id @default(dbgenerated("uuid_generate_v7()")) @db.Uuid
+  tenantId     String   @map("tenant_id") @db.Uuid
+  orderId      String   @map("order_id") @db.Uuid
+  splitId      String?  @map("split_id") @db.Uuid
+  method       String   @db.VarChar(30)
+  amount       Decimal  @db.Decimal(12, 2)
+  currencyCode String   @default("PEN") @map("currency_code") @db.Char(3)
+  reference    String?
+  processedBy  String?  @map("processed_by") @db.Uuid
+  cashReceived Decimal? @map("cash_received") @db.Decimal(12, 2)
+  changeGiven  Decimal? @map("change_given") @db.Decimal(12, 2)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  order Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  split OrderSplit? @relation(fields: [splitId], references: [id])
+
+  @@map("payments")
+}
+
+// ── Order Splits (Split Bill) ──
+model OrderSplit {
+  id         String   @id @default(dbgenerated("uuid_generate_v7()")) @db.Uuid
+  tenantId   String   @map("tenant_id") @db.Uuid
+  orderId    String   @map("order_id") @db.Uuid
+  label      String   @db.VarChar(100)
+  splitType  String   @default("equal") @map("split_type") @db.VarChar(20)
+  amount     Decimal  @default(0) @db.Decimal(12, 2)
+  taxAmount  Decimal  @default(0) @map("tax_amount") @db.Decimal(12, 2)
+  total      Decimal  @default(0) @db.Decimal(12, 2)
+  status     String   @default("pending") @db.VarChar(20)
+  paidAmount Decimal  @default(0) @map("paid_amount") @db.Decimal(12, 2)
+  metadata   Json     @default("{}")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  order    Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  payments Payment[]
+
+  @@map("order_splits")
+}
+
+// ── Promotions ──
+model Promotion {
+  id                String    @id @default(dbgenerated("uuid_generate_v7()")) @db.Uuid
+  tenantId          String    @map("tenant_id") @db.Uuid
+  name              String    @db.VarChar(200)
+  description       String?
+  promoType         String    @default("percentage") @map("promo_type") @db.VarChar(30)
+  discountValue     Decimal   @default(0) @map("discount_value") @db.Decimal(12, 2)
+  buyQuantity       Int?      @map("buy_quantity")
+  getQuantity       Int?      @map("get_quantity")
+  scope             String    @default("order") @db.VarChar(20)
+  productIds        String[]  @default([]) @map("product_ids") @db.Uuid
+  categoryIds       String[]  @default([]) @map("category_ids") @db.Uuid
+  couponCode        String?   @map("coupon_code") @db.VarChar(50)
+  minOrderAmount    Decimal   @default(0) @map("min_order_amount") @db.Decimal(12, 2)
+  maxDiscountAmount Decimal?  @map("max_discount_amount") @db.Decimal(12, 2)
+  maxUses           Int?      @map("max_uses")
+  maxUsesPerOrder   Int       @default(1) @map("max_uses_per_order")
+  currentUses       Int       @default(0) @map("current_uses")
+  startDate         DateTime  @default(now()) @map("start_date") @db.Timestamptz()
+  endDate           DateTime? @map("end_date") @db.Timestamptz()
+  daysOfWeek        Int[]     @default([0, 1, 2, 3, 4, 5, 6]) @map("days_of_week")
+  startTime         String?   @map("start_time") @db.VarChar(5)
+  endTime           String?   @map("end_time") @db.VarChar(5)
+  isActive          Boolean   @default(true) @map("is_active")
+  isAutomatic       Boolean   @default(true) @map("is_automatic")
+  priority          Int       @default(0)
+  stackable         Boolean   @default(false)
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt         DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  tenant            Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  appliedPromotions AppliedPromotion[]
+  orderItems        OrderItem[]
+
+  @@map("promotions")
+}
+
+// ── Applied Promotions ──
+model AppliedPromotion {
+  id             String   @id @default(dbgenerated("uuid_generate_v7()")) @db.Uuid
+  tenantId       String   @map("tenant_id")
+  orderId        String   @map("order_id") @db.Uuid
+  orderItemId    String?  @map("order_item_id") @db.Uuid
+  promotionId    String   @map("promotion_id") @db.Uuid
+  promoName      String   @map("promo_name") @db.VarChar(200)
+  promoType      String   @map("promo_type") @db.VarChar(30)
+  discountAmount Decimal  @default(0) @map("discount_amount") @db.Decimal(12, 2)
+  metadata       Json     @default("{}")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  order     Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  promotion Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+
+  @@map("applied_promotions")
+}
+
+// ── Ingredients ──
+model Ingredient {
+  id           String   @id @default(dbgenerated("uuid_generate_v7()")) @db.Uuid
+  tenantId     String   @map("tenant_id") @db.Uuid
+  name         String   @db.VarChar(200)
+  unit         String   @db.VarChar(20)
+  currentStock Decimal  @default(0) @map("current_stock") @db.Decimal(12, 4)
+  minStock     Decimal  @default(0) @map("min_stock") @db.Decimal(12, 4)
+  costPerUnit  Decimal  @default(0) @map("cost_per_unit") @db.Decimal(12, 4)
+  supplierId   String?  @map("supplier_id") @db.Uuid
+  category     String?  @db.VarChar(100)
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  recipeItems RecipeItem[]
+  supplier    Supplier?    @relation(fields: [supplierId], references: [id])
+
+  @@map("ingredients")
+}
+
+// ── Recipes ──
+model Recipe {
+  id            String   @id @default(dbgenerated("uuid_generate_v7()")) @db.Uuid
+  tenantId      String   @map("tenant_id") @db.Uuid
+  productId     String   @unique @map("product_id") @db.Uuid
+  yieldQuantity Decimal  @default(1) @map("yield_quantity") @db.Decimal(12, 4)
+  yieldUnit     String   @default("portion") @map("yield_unit") @db.VarChar(20)
+  totalCost     Decimal  @default(0) @map("total_cost") @db.Decimal(12, 4)
+  instructions  String?
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  product Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  items   RecipeItem[]
+
+  @@map("recipes")
+}
+
+// ── Recipe Items ──
+model RecipeItem {
+  id           String  @id @default(dbgenerated("uuid_generate_v7()")) @db.Uuid
+  tenantId     String  @map("tenant_id") @db.Uuid
+  recipeId     String  @map("recipe_id") @db.Uuid
+  ingredientId String  @map("ingredient_id") @db.Uuid
+  quantity     Decimal @db.Decimal(12, 4)
+  unit         String  @db.VarChar(20)
+  cost         Decimal @default(0) @db.Decimal(12, 4)
+
+  recipe     Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id])
+
+  @@map("recipe_items")
+}
+
+// ── Suppliers ──
+model Supplier {
+  id          String   @id @default(dbgenerated("uuid_generate_v7()")) @db.Uuid
+  tenantId    String   @map("tenant_id") @db.Uuid
+  name        String   @db.VarChar(200)
+  contactName String?  @map("contact_name") @db.VarChar(200)
+  phone       String?  @db.VarChar(30)
+  email       String?  @db.VarChar(255)
+  taxId       String?  @map("tax_id") @db.VarChar(50)
+  address     String?
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  ingredients Ingredient[]
+
+  @@map("suppliers")
+}
+
+// ── SRI Config ──
+model SriConfig {
+  id                    String   @id @default(dbgenerated("uuid_generate_v7()")) @db.Uuid
+  tenantId              String   @unique @map("tenant_id") @db.Uuid
+  ruc                   String   @db.VarChar(13)
+  razonSocial           String   @map("razon_social") @db.VarChar(300)
+  nombreComercial       String?  @map("nombre_comercial") @db.VarChar(300)
+  direccionMatriz       String   @map("direccion_matriz") @db.VarChar(300)
+  obligadoContabilidad  Boolean  @default(false) @map("obligado_contabilidad")
+  contribuyenteEspecial String?  @map("contribuyente_especial") @db.VarChar(20)
+  regimenRimpe          Boolean  @default(false) @map("regimen_rimpe")
+  ambiente              String   @default("1") @db.VarChar(1)
+  tipoEmision           String   @default("1") @map("tipo_emision") @db.VarChar(1)
+  establecimiento       String   @default("001") @db.VarChar(3)
+  puntoEmision          String   @default("001") @map("punto_emision") @db.VarChar(3)
+  secuencialFactura     Int      @default(0) @map("secuencial_factura")
+  secuencialNotaCredito Int      @default(0) @map("secuencial_nota_credito")
+  secuencialRetencion   Int      @default(0) @map("secuencial_retencion")
+  certP12Path           String?  @map("cert_p12_path") @db.VarChar(500)
+  certP12Password       String?  @map("cert_p12_password") @db.VarChar(200)
+  logoUrl               String?  @map("logo_url") @db.VarChar(500)
+  emailNotificacion     String?  @map("email_notificacion") @db.VarChar(255)
+  // SMTP configuration for sending emails
+  smtpHost              String?  @map("smtp_host") @db.VarChar(255)
+  smtpPort              Int?     @map("smtp_port")
+  smtpUser              String?  @map("smtp_user") @db.VarChar(255)
+  smtpPassword          String?  @map("smtp_password") @db.VarChar(500)
+  smtpFromName          String?  @map("smtp_from_name") @db.VarChar(200)
+  smtpSecure            Boolean  @default(true) @map("smtp_secure")
+  createdAt             DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt             DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  @@map("sri_config")
+}
+
+// ── Electronic Invoices ──
+model ElectronicInvoice {
+  id                       String   @id @default(dbgenerated("uuid_generate_v7()")) @db.Uuid
+  tenantId                 String   @map("tenant_id") @db.Uuid
+  orderId                  String?  @map("order_id") @db.Uuid
+  tipoComprobante          String   @default("01") @map("tipo_comprobante") @db.VarChar(2)
+  claveAcceso              String   @unique @map("clave_acceso") @db.VarChar(49)
+  secuencial               String   @db.VarChar(9)
+  fechaEmision             DateTime @map("fecha_emision") @db.Date
+  rucEmisor                String   @map("ruc_emisor") @db.VarChar(13)
+  razonSocialComprador     String?  @map("razon_social_comprador") @db.VarChar(300)
+  identificacionComprador  String?  @map("identificacion_comprador") @db.VarChar(20)
+  tipoIdentificacion       String?  @default("07") @map("tipo_identificacion") @db.VarChar(2)
+  subtotalSinIva           Decimal  @default(0) @map("subtotal_sin_iva") @db.Decimal(12, 2)
+  subtotalIva              Decimal  @default(0) @map("subtotal_iva") @db.Decimal(12, 2)
+  iva                      Decimal  @default(0) @db.Decimal(12, 2)
+  total                    Decimal  @db.Decimal(12, 2)
+  xmlGenerado              String?  @map("xml_generado")
+  xmlFirmado               String?  @map("xml_firmado")
+  xmlAutorizado            String?  @map("xml_autorizado")
+  estado                   String   @default("generado") @db.VarChar(20)
+  numeroAutorizacion       String?  @map("numero_autorizacion") @db.VarChar(49)
+  fechaAutorizacion        DateTime? @map("fecha_autorizacion") @db.Timestamptz()
+  errores                  Json     @default("[]")
+  rideUrl                  String?  @map("ride_url") @db.VarChar(500)
+  emailEnviado             Boolean  @default(false) @map("email_enviado")
+  // Credit note / void references
+  facturaOrigenId          String?  @map("factura_origen_id") @db.Uuid
+  motivoAnulacion          String?  @map("motivo_anulacion") @db.VarChar(300)
+  createdAt                DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt                DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  order          Order?              @relation(fields: [orderId], references: [id])
+  facturaOrigen  ElectronicInvoice?  @relation("NotaCreditoOrigen", fields: [facturaOrigenId], references: [id])
+  notasCredito   ElectronicInvoice[] @relation("NotaCreditoOrigen")
+
+  @@map("electronic_invoices")
+}
+model CreditAccount {
+  id           String   @id @default(dbgenerated("uuid_generate_v7()")) @db.Uuid
+  tenantId     String   @map("tenant_id") @db.Uuid
+  customerId   String   @map("customer_id") @db.Uuid
+  creditLimit  Decimal  @default(0) @map("credit_limit") @db.Decimal(12, 2)
+  balance      Decimal  @default(0) @db.Decimal(12, 2)
+  status       String   @default("active") @db.VarChar(20)
+  notes        String?
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer     Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  transactions CreditTransaction[]
+
+  @@unique([tenantId, customerId])
+  @@map("credit_accounts")
+}
+
+model CreditTransaction {
+  id              String    @id @default(dbgenerated("uuid_generate_v7()")) @db.Uuid
+  tenantId        String    @map("tenant_id") @db.Uuid
+  creditAccountId String    @map("credit_account_id") @db.Uuid
+  orderId         String?   @map("order_id") @db.Uuid
+  type            String    @db.VarChar(20)
+  amount          Decimal   @db.Decimal(12, 2)
+  balanceAfter    Decimal   @map("balance_after") @db.Decimal(12, 2)
+  reference       String?   @db.VarChar(100)
+  notes           String?
+  processedBy     String?   @map("processed_by") @db.Uuid
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+
+  creditAccount CreditAccount @relation(fields: [creditAccountId], references: [id], onDelete: Cascade)
+
+  @@map("credit_transactions")
+}
