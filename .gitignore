@@ -1,5 +1,11 @@
-storage/
-
-# macOS
+node_modules/
+dist/
+.next/
+.env
+.env.local
+.env.production
+*.log
 .DS_Store
-._*
+*.node
+.turbo/
+coverage/
