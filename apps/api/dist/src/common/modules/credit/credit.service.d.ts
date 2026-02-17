@@ -2,54 +2,41 @@ import { PrismaService } from '../../prisma.service';
 export declare class CreditService {
     private prisma;
     constructor(prisma: PrismaService);
-    getDashboard(tenantId: string): Promise<{
-        summary: any;
-        last30Days: any[];
-        recentPayments: any[];
-    }>;
+    getDashboard(tenantId: string): unknown;
     listAccounts(tenantId: string, filters: {
         status?: string;
         search?: string;
         overdue?: boolean;
-    }): Promise<any[]>;
-    getAccount(tenantId: string, id: string): Promise<any>;
-    getByCustomer(tenantId: string, customerId: string): Promise<any>;
+    }): unknown;
+    getAccount(tenantId: string, id: string): unknown;
+    getByCustomer(tenantId: string, customerId: string): unknown;
     createAccount(tenantId: string, dto: {
         customerId: string;
         creditLimit: number;
         notes?: string;
-    }): Promise<any>;
+    }): unknown;
     updateAccount(tenantId: string, id: string, dto: {
         creditLimit?: number;
         status?: string;
         notes?: string;
-    }): Promise<any>;
+    }): unknown;
     recordCharge(tenantId: string, accountId: string, dto: {
         orderId: string;
         amount: number;
         notes?: string;
-    }, userId: string): Promise<{
-        transaction: any;
-        newBalance: number;
-    }>;
+    }, userId: string): unknown;
     recordPayment(tenantId: string, accountId: string, dto: {
         amount: number;
         method?: string;
         reference?: string;
         notes?: string;
-    }, userId: string): Promise<{
-        transaction: any;
-        newBalance: number;
-    }>;
+    }, userId: string): unknown;
     recordAdjustment(tenantId: string, accountId: string, dto: {
         amount: number;
         reason: string;
-    }, userId: string): Promise<{
-        transaction: any;
-        newBalance: number;
-    }>;
+    }, userId: string): unknown;
     getTransactions(tenantId: string, accountId: string, pagination: {
         page: number;
         limit: number;
-    }): Promise<any[]>;
+    }): unknown;
 }

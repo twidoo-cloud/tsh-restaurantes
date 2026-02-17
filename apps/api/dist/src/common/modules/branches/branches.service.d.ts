@@ -2,38 +2,8 @@ import { PrismaService } from '../../prisma.service';
 export declare class BranchesService {
     private prisma;
     constructor(prisma: PrismaService);
-    findAll(tenantId: string): Promise<{
-        id: string;
-        tenantId: string;
-        createdAt: Date;
-        name: string;
-        email: string | null;
-        isActive: boolean;
-        updatedAt: Date;
-        address: import("@prisma/client/runtime/library").JsonValue | null;
-        phone: string | null;
-        settings: import("@prisma/client/runtime/library").JsonValue;
-        code: string;
-        establecimientoSri: string;
-        puntoEmisionSri: string;
-        isMain: boolean;
-    }[]>;
-    findOne(tenantId: string, id: string): Promise<{
-        id: string;
-        tenantId: string;
-        createdAt: Date;
-        name: string;
-        email: string | null;
-        isActive: boolean;
-        updatedAt: Date;
-        address: import("@prisma/client/runtime/library").JsonValue | null;
-        phone: string | null;
-        settings: import("@prisma/client/runtime/library").JsonValue;
-        code: string;
-        establecimientoSri: string;
-        puntoEmisionSri: string;
-        isMain: boolean;
-    }>;
+    findAll(tenantId: string): unknown;
+    findOne(tenantId: string, id: string): unknown;
     create(tenantId: string, data: {
         name: string;
         code?: string;
@@ -43,22 +13,7 @@ export declare class BranchesService {
         establecimientoSri?: string;
         puntoEmisionSri?: string;
         settings?: any;
-    }): Promise<{
-        id: string;
-        tenantId: string;
-        createdAt: Date;
-        name: string;
-        email: string | null;
-        isActive: boolean;
-        updatedAt: Date;
-        address: import("@prisma/client/runtime/library").JsonValue | null;
-        phone: string | null;
-        settings: import("@prisma/client/runtime/library").JsonValue;
-        code: string;
-        establecimientoSri: string;
-        puntoEmisionSri: string;
-        isMain: boolean;
-    }>;
+    }): unknown;
     update(tenantId: string, id: string, data: {
         name?: string;
         code?: string;
@@ -69,58 +24,8 @@ export declare class BranchesService {
         puntoEmisionSri?: string;
         isActive?: boolean;
         settings?: any;
-    }): Promise<{
-        id: string;
-        tenantId: string;
-        createdAt: Date;
-        name: string;
-        email: string | null;
-        isActive: boolean;
-        updatedAt: Date;
-        address: import("@prisma/client/runtime/library").JsonValue | null;
-        phone: string | null;
-        settings: import("@prisma/client/runtime/library").JsonValue;
-        code: string;
-        establecimientoSri: string;
-        puntoEmisionSri: string;
-        isMain: boolean;
-    }>;
-    setMain(tenantId: string, id: string): Promise<{
-        id: string;
-        tenantId: string;
-        createdAt: Date;
-        name: string;
-        email: string | null;
-        isActive: boolean;
-        updatedAt: Date;
-        address: import("@prisma/client/runtime/library").JsonValue | null;
-        phone: string | null;
-        settings: import("@prisma/client/runtime/library").JsonValue;
-        code: string;
-        establecimientoSri: string;
-        puntoEmisionSri: string;
-        isMain: boolean;
-    }>;
-    delete(tenantId: string, id: string): Promise<{
-        id: string;
-        tenantId: string;
-        createdAt: Date;
-        name: string;
-        email: string | null;
-        isActive: boolean;
-        updatedAt: Date;
-        address: import("@prisma/client/runtime/library").JsonValue | null;
-        phone: string | null;
-        settings: import("@prisma/client/runtime/library").JsonValue;
-        code: string;
-        establecimientoSri: string;
-        puntoEmisionSri: string;
-        isMain: boolean;
-    }>;
-    getStats(tenantId: string, branchId: string): Promise<{
-        ordersToday: number;
-        salesToday: number | import("@prisma/client/runtime/library").Decimal;
-        openOrders: number;
-        activeStaff: number;
-    }>;
+    }): unknown;
+    setMain(tenantId: string, id: string): unknown;
+    delete(tenantId: string, id: string): unknown;
+    getStats(tenantId: string, branchId: string): unknown;
 }

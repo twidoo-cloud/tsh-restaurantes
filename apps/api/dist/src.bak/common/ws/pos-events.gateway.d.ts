@@ -10,7 +10,7 @@ export declare class PosEventsGateway implements OnGatewayInit, OnGatewayConnect
     private connectedClients;
     constructor(jwtService: JwtService, configService: ConfigService);
     afterInit(): void;
-    handleConnection(client: Socket): Promise<void>;
+    handleConnection(client: Socket): any;
     handleDisconnect(client: Socket): void;
     handleJoinRoom(client: Socket, data: {
         room: string;

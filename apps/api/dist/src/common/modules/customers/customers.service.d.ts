@@ -9,7 +9,7 @@ export declare class CustomersService {
         phone?: string;
         address?: string;
         notes?: string;
-    }): Promise<any>;
+    }): unknown;
     update(tenantId: string, customerId: string, data: {
         taxId?: string;
         name?: string;
@@ -17,39 +17,21 @@ export declare class CustomersService {
         phone?: string;
         address?: string;
         notes?: string;
-    }): Promise<any>;
+    }): unknown;
     list(tenantId: string, filters?: {
         search?: string;
         page?: number;
         limit?: number;
         sortBy?: string;
         sortOrder?: string;
-    }): Promise<{
-        data: any[];
-        total: any;
-        page: number;
-        limit: number;
-    }>;
-    getById(tenantId: string, customerId: string): Promise<any>;
-    getHistory(tenantId: string, customerId: string, limit?: number): Promise<{
-        orders: any[];
-        invoices: any[];
-    }>;
-    getStats(tenantId: string, customerId: string): Promise<any>;
-    findByTaxId(tenantId: string, taxId: string): Promise<any>;
-    quickSearch(tenantId: string, query: string): Promise<any[]>;
-    getTopCustomers(tenantId: string, limit?: number): Promise<any[]>;
-    getDashboard(tenantId: string): Promise<any>;
-    linkToOrder(tenantId: string, customerId: string, orderId: string): Promise<{
-        customerId: string;
-        orderId: string;
-        linked: boolean;
-    }>;
-    delete(tenantId: string, customerId: string): Promise<{
-        deleted: boolean;
-        anonymized: boolean;
-    } | {
-        deleted: boolean;
-        anonymized?: undefined;
-    }>;
+    }): unknown;
+    getById(tenantId: string, customerId: string): unknown;
+    getHistory(tenantId: string, customerId: string, limit?: number): unknown;
+    getStats(tenantId: string, customerId: string): unknown;
+    findByTaxId(tenantId: string, taxId: string): unknown;
+    quickSearch(tenantId: string, query: string): unknown;
+    getTopCustomers(tenantId: string, limit?: number): unknown;
+    getDashboard(tenantId: string): unknown;
+    linkToOrder(tenantId: string, customerId: string, orderId: string): unknown;
+    delete(tenantId: string, customerId: string): unknown;
 }

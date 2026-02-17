@@ -12,56 +12,12 @@ declare class VoidInvoiceDto {
 export declare class InvoicesController {
     private invoicesService;
     constructor(invoicesService: InvoicesService);
-    list(tenantId: string, status?: string, page?: string, limit?: string): Promise<{
-        data: any[];
-        total: any;
-        page: number;
-        limit: number;
-    }>;
-    summary(tenantId: string): Promise<any>;
-    getOne(tenantId: string, id: string): Promise<any>;
-    generate(tenantId: string, dto: GenerateInvoiceDto): Promise<{
-        fullNumber: string;
-        claveAcceso: string;
-        documentType: string;
-        buyer: {
-            taxId: string;
-            name: string;
-        };
-        subtotal: number;
-        taxAmount: number;
-        total: number;
-        status: string;
-        ambiente: string;
-        xml: string;
-    }>;
-    send(tenantId: string, id: string): Promise<{
-        claveAcceso: any;
-        estado: string;
-        comprobantes: {
-            claveAcceso: any;
-            mensajes: {
-                identificador: string;
-                mensaje: string;
-                informacionAdicional: string;
-                tipo: string;
-            }[];
-        }[];
-        ambiente: any;
-        nota: string;
-    }>;
-    check(tenantId: string, id: string): Promise<{
-        claveAcceso: any;
-        estado: string;
-        numeroAutorizacion: any;
-        fechaAutorizacion: string;
-        ambiente: any;
-        nota: string;
-    }>;
-    voidInvoice(tenantId: string, id: string, dto: VoidInvoiceDto): Promise<{
-        invoiceId: string;
-        status: string;
-        reason: string;
-    }>;
+    list(tenantId: string, status?: string, page?: string, limit?: string): unknown;
+    summary(tenantId: string): unknown;
+    getOne(tenantId: string, id: string): unknown;
+    generate(tenantId: string, dto: GenerateInvoiceDto): unknown;
+    send(tenantId: string, id: string): unknown;
+    check(tenantId: string, id: string): unknown;
+    voidInvoice(tenantId: string, id: string, dto: VoidInvoiceDto): unknown;
 }
 export {};

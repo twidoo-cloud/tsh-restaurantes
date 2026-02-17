@@ -22,29 +22,12 @@ declare class UpdateMinStockDto {
 export declare class InventoryController {
     private inventoryService;
     constructor(inventoryService: InventoryService);
-    getStockLevels(tenantId: string, branchId: string | null, categoryId?: string, lowStockOnly?: string, search?: string): Promise<unknown>;
-    getAlerts(tenantId: string, branchId: string | null): Promise<{
-        alerts: any[];
-        criticalCount: number;
-        warningCount: number;
-    }>;
-    getSummary(tenantId: string, branchId: string | null): Promise<any>;
-    getMovements(tenantId: string, branchId: string | null, productId?: string, movementType?: string, page?: string, limit?: string): Promise<{
-        data: unknown;
-        total: any;
-        page: number;
-        limit: number;
-    }>;
-    recordMovement(tenantId: string, branchId: string | null, userId: string, dto: RecordMovementDto): Promise<{
-        productId: string;
-        productName: any;
-        previousStock: number;
-        newStock: number;
-        quantityChange: number;
-    }>;
-    bulkAdjustment(tenantId: string, branchId: string | null, userId: string, dto: BulkAdjustmentDto): Promise<any[]>;
-    updateMinStock(tenantId: string, productId: string, dto: UpdateMinStockDto): Promise<{
-        success: boolean;
-    }>;
+    getStockLevels(tenantId: string, branchId: string | null, categoryId?: string, lowStockOnly?: string, search?: string): unknown;
+    getAlerts(tenantId: string, branchId: string | null): unknown;
+    getSummary(tenantId: string, branchId: string | null): unknown;
+    getMovements(tenantId: string, branchId: string | null, productId?: string, movementType?: string, page?: string, limit?: string): unknown;
+    recordMovement(tenantId: string, branchId: string | null, userId: string, dto: RecordMovementDto): unknown;
+    bulkAdjustment(tenantId: string, branchId: string | null, userId: string, dto: BulkAdjustmentDto): unknown;
+    updateMinStock(tenantId: string, productId: string, dto: UpdateMinStockDto): unknown;
 }
 export {};

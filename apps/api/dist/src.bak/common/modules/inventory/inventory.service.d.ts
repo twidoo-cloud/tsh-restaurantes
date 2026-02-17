@@ -11,12 +11,12 @@ export declare class InventoryService {
         categoryId?: string;
         lowStockOnly?: boolean;
         search?: string;
-    }): Promise<unknown>;
+    }): unknown;
     getStockLevelsSimple(tenantId: string, filters?: {
         categoryId?: string;
         lowStockOnly?: boolean;
         search?: string;
-    }): Promise<unknown>;
+    }): unknown;
     recordMovement(tenantId: string, userId: string, data: {
         productId: string;
         movementType: MovementType;
@@ -24,33 +24,20 @@ export declare class InventoryService {
         unitCost?: number;
         reference?: string;
         notes?: string;
-    }): Promise<{
-        productId: string;
-        productName: any;
-        previousStock: number;
-        newStock: number;
-        quantityChange: number;
-    }>;
+    }): unknown;
     bulkAdjustment(tenantId: string, userId: string, adjustments: {
         productId: string;
         newStock: number;
         notes?: string;
-    }[]): Promise<any[]>;
+    }[]): unknown;
     getMovements(tenantId: string, filters?: {
         productId?: string;
         movementType?: string;
         page?: number;
         limit?: number;
-    }): Promise<{
-        data: unknown;
-        total: any;
-        page: number;
-        limit: number;
-    }>;
-    getAlerts(tenantId: string): Promise<unknown>;
-    getSummary(tenantId: string): Promise<any>;
-    updateMinStock(tenantId: string, productId: string, minStock: number): Promise<{
-        success: boolean;
-    }>;
+    }): unknown;
+    getAlerts(tenantId: string): unknown;
+    getSummary(tenantId: string): unknown;
+    updateMinStock(tenantId: string, productId: string, minStock: number): unknown;
     private getUserName;
 }

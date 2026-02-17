@@ -3,46 +3,22 @@ import { EnrollCustomerDto, EarnPointsDto, RedeemRewardDto, AdjustPointsDto, Cre
 export declare class LoyaltyService {
     private prisma;
     constructor(prisma: PrismaService);
-    enrollCustomer(tenantId: string, dto: EnrollCustomerDto): Promise<any>;
-    earnPoints(tenantId: string, dto: EarnPointsDto): Promise<{
-        pointsEarned: number;
-        message: string;
-        multiplier?: undefined;
-        balance?: undefined;
-    } | {
-        pointsEarned: number;
-        multiplier: number;
-        balance: any;
-        message?: undefined;
-    }>;
-    redeemReward(tenantId: string, dto: RedeemRewardDto): Promise<{
-        reward: any;
-        pointsUsed: any;
-        rewardType: any;
-        rewardValue: number;
-        productId: any;
-        balance: number;
-    }>;
-    adjustPoints(tenantId: string, dto: AdjustPointsDto, userId?: string): Promise<any>;
-    getCustomerLoyalty(tenantId: string, customerId: string): Promise<any>;
-    getLeaderboard(tenantId: string, limit?: number): Promise<unknown>;
-    getTransactions(tenantId: string, query: LoyaltyQueryDto): Promise<{
-        data: any[];
-        total: any;
-        page: number;
-        limit: number;
-    }>;
-    getDashboard(tenantId: string): Promise<any>;
-    getRewards(tenantId: string): Promise<unknown>;
-    createReward(tenantId: string, dto: CreateRewardDto): Promise<any>;
-    updateReward(tenantId: string, id: string, dto: UpdateRewardDto): Promise<any>;
-    deleteReward(tenantId: string, id: string): Promise<{
-        success: boolean;
-    }>;
+    enrollCustomer(tenantId: string, dto: EnrollCustomerDto): unknown;
+    earnPoints(tenantId: string, dto: EarnPointsDto): unknown;
+    redeemReward(tenantId: string, dto: RedeemRewardDto): unknown;
+    adjustPoints(tenantId: string, dto: AdjustPointsDto, userId?: string): unknown;
+    getCustomerLoyalty(tenantId: string, customerId: string): unknown;
+    getLeaderboard(tenantId: string, limit?: number): unknown;
+    getTransactions(tenantId: string, query: LoyaltyQueryDto): unknown;
+    getDashboard(tenantId: string): unknown;
+    getRewards(tenantId: string): unknown;
+    createReward(tenantId: string, dto: CreateRewardDto): unknown;
+    updateReward(tenantId: string, id: string, dto: UpdateRewardDto): unknown;
+    deleteReward(tenantId: string, id: string): unknown;
     getTiers(tenantId: string): any;
     private createDefaultTiers;
-    getOrCreateSettings(tenantId: string): Promise<any>;
-    updateSettings(tenantId: string, dto: UpdateLoyaltySettingsDto): Promise<any>;
+    getOrCreateSettings(tenantId: string): unknown;
+    updateSettings(tenantId: string, dto: UpdateLoyaltySettingsDto): unknown;
     private addPoints;
     private checkTierUpgrade;
 }

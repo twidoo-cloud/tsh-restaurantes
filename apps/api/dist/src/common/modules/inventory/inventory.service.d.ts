@@ -11,12 +11,12 @@ export declare class InventoryService {
         categoryId?: string;
         lowStockOnly?: boolean;
         search?: string;
-    }): Promise<unknown>;
+    }): unknown;
     getStockLevelsSimple(tenantId: string, branchId?: string | null, filters?: {
         categoryId?: string;
         lowStockOnly?: boolean;
         search?: string;
-    }): Promise<unknown>;
+    }): unknown;
     recordMovement(tenantId: string, userId: string, data: {
         productId: string;
         movementType: MovementType;
@@ -25,38 +25,21 @@ export declare class InventoryService {
         reference?: string;
         notes?: string;
         supplierId?: string;
-    }, branchId?: string | null): Promise<{
-        productId: string;
-        productName: any;
-        previousStock: number;
-        newStock: number;
-        quantityChange: number;
-    }>;
+    }, branchId?: string | null): unknown;
     bulkAdjustment(tenantId: string, userId: string, adjustments: {
         productId: string;
         newStock: number;
         notes?: string;
-    }[], branchId?: string | null): Promise<any[]>;
+    }[], branchId?: string | null): unknown;
     getMovements(tenantId: string, filters?: {
         productId?: string;
         movementType?: string;
         page?: number;
         limit?: number;
         branchId?: string | null;
-    }): Promise<{
-        data: unknown;
-        total: any;
-        page: number;
-        limit: number;
-    }>;
-    getAlerts(tenantId: string, branchId?: string | null): Promise<{
-        alerts: any[];
-        criticalCount: number;
-        warningCount: number;
-    }>;
-    getSummary(tenantId: string, branchId?: string | null): Promise<any>;
-    updateMinStock(tenantId: string, productId: string, minStock: number): Promise<{
-        success: boolean;
-    }>;
+    }): unknown;
+    getAlerts(tenantId: string, branchId?: string | null): unknown;
+    getSummary(tenantId: string, branchId?: string | null): unknown;
+    updateMinStock(tenantId: string, productId: string, minStock: number): unknown;
     private getUserName;
 }

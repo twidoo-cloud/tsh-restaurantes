@@ -18,13 +18,7 @@ export declare class AuditService {
     constructor(prisma: PrismaService);
     log(entry: AuditEntry): Promise<void>;
     logMany(entries: AuditEntry[]): Promise<void>;
-    getDashboard(tenantId: string): Promise<{
-        summary: any;
-        recentCritical: any[];
-        activityByHour: any[];
-        topUsers: any[];
-        topActions: any[];
-    }>;
+    getDashboard(tenantId: string): unknown;
     search(tenantId: string, filters: {
         search?: string;
         action?: string;
@@ -35,16 +29,6 @@ export declare class AuditService {
         dateTo?: string;
         page?: number;
         limit?: number;
-    }): Promise<{
-        data: any[];
-        total: any;
-        page: number;
-        limit: number;
-        totalPages: number;
-    }>;
-    getFilterOptions(tenantId: string): Promise<{
-        actions: any[];
-        entities: any[];
-        users: any[];
-    }>;
+    }): unknown;
+    getFilterOptions(tenantId: string): unknown;
 }

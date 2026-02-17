@@ -27,28 +27,15 @@ declare class RecordAdjustmentDto {
 export declare class CreditController {
     private creditService;
     constructor(creditService: CreditService);
-    dashboard(tenantId: string): Promise<{
-        summary: any;
-        last30Days: any[];
-        recentPayments: any[];
-    }>;
-    listAccounts(tenantId: string, status?: string, search?: string, overdue?: string): Promise<any[]>;
-    getAccount(tenantId: string, id: string): Promise<any>;
-    getByCustomer(tenantId: string, customerId: string): Promise<any>;
-    createAccount(tenantId: string, dto: CreateCreditAccountDto): Promise<any>;
-    updateAccount(tenantId: string, id: string, dto: UpdateCreditAccountDto): Promise<any>;
-    recordCharge(tenantId: string, id: string, dto: RecordChargeDto, user: any): Promise<{
-        transaction: any;
-        newBalance: number;
-    }>;
-    recordPayment(tenantId: string, id: string, dto: RecordPaymentDto, user: any): Promise<{
-        transaction: any;
-        newBalance: number;
-    }>;
-    recordAdjustment(tenantId: string, id: string, dto: RecordAdjustmentDto, user: any): Promise<{
-        transaction: any;
-        newBalance: number;
-    }>;
-    getTransactions(tenantId: string, id: string, page?: string, limit?: string): Promise<any[]>;
+    dashboard(tenantId: string): unknown;
+    listAccounts(tenantId: string, status?: string, search?: string, overdue?: string): unknown;
+    getAccount(tenantId: string, id: string): unknown;
+    getByCustomer(tenantId: string, customerId: string): unknown;
+    createAccount(tenantId: string, dto: CreateCreditAccountDto): unknown;
+    updateAccount(tenantId: string, id: string, dto: UpdateCreditAccountDto): unknown;
+    recordCharge(tenantId: string, id: string, dto: RecordChargeDto, user: any): unknown;
+    recordPayment(tenantId: string, id: string, dto: RecordPaymentDto, user: any): unknown;
+    recordAdjustment(tenantId: string, id: string, dto: RecordAdjustmentDto, user: any): unknown;
+    getTransactions(tenantId: string, id: string, page?: string, limit?: string): unknown;
 }
 export {};

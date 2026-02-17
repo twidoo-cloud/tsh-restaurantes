@@ -21,35 +21,17 @@ declare class LinkOrderDto {
 export declare class CustomersController {
     private customersService;
     constructor(customersService: CustomersService);
-    list(tenantId: string, search?: string, page?: string, limit?: string): Promise<{
-        data: any[];
-        total: any;
-        page: number;
-        limit: number;
-    }>;
-    dashboard(tenantId: string): Promise<any>;
-    top(tenantId: string, limit?: string): Promise<any[]>;
-    quickSearch(tenantId: string, q: string): Promise<any[]>;
-    findByTaxId(tenantId: string, taxId: string): Promise<any>;
-    getOne(tenantId: string, id: string): Promise<any>;
-    history(tenantId: string, id: string): Promise<{
-        orders: any[];
-        invoices: any[];
-    }>;
-    stats(tenantId: string, id: string): Promise<any>;
-    create(tenantId: string, dto: CreateCustomerDto): Promise<any>;
-    update(tenantId: string, id: string, dto: UpdateCustomerDto): Promise<any>;
-    linkOrder(tenantId: string, id: string, dto: LinkOrderDto): Promise<{
-        customerId: string;
-        orderId: string;
-        linked: boolean;
-    }>;
-    delete(tenantId: string, id: string): Promise<{
-        deleted: boolean;
-        anonymized: boolean;
-    } | {
-        deleted: boolean;
-        anonymized?: undefined;
-    }>;
+    list(tenantId: string, search?: string, page?: string, limit?: string): unknown;
+    dashboard(tenantId: string): unknown;
+    top(tenantId: string, limit?: string): unknown;
+    quickSearch(tenantId: string, q: string): unknown;
+    findByTaxId(tenantId: string, taxId: string): unknown;
+    getOne(tenantId: string, id: string): unknown;
+    history(tenantId: string, id: string): unknown;
+    stats(tenantId: string, id: string): unknown;
+    create(tenantId: string, dto: CreateCustomerDto): unknown;
+    update(tenantId: string, id: string, dto: UpdateCustomerDto): unknown;
+    linkOrder(tenantId: string, id: string, dto: LinkOrderDto): unknown;
+    delete(tenantId: string, id: string): unknown;
 }
 export {};

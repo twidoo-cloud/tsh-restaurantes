@@ -3,34 +3,26 @@ import { CreateDeliveryOrderDto, UpdateDeliveryOrderDto, DeliveryQueryDto, Creat
 export declare class DeliveryController {
     private service;
     constructor(service: DeliveryService);
-    findAll(tenantId: string, query: DeliveryQueryDto): Promise<{
-        data: any[];
-        total: any;
-        page: number;
-        limit: number;
-        totalPages: number;
-    }>;
-    dashboard(tenantId: string, date?: string): Promise<any>;
-    findById(tenantId: string, id: string): Promise<any>;
-    create(tenantId: string, dto: CreateDeliveryOrderDto): Promise<any>;
-    update(tenantId: string, id: string, dto: UpdateDeliveryOrderDto): Promise<any>;
-    confirm(tenantId: string, id: string): Promise<any>;
-    prepare(tenantId: string, id: string): Promise<any>;
-    ready(tenantId: string, id: string): Promise<any>;
+    findAll(tenantId: string, query: DeliveryQueryDto): unknown;
+    dashboard(tenantId: string, date?: string): unknown;
+    findById(tenantId: string, id: string): unknown;
+    create(tenantId: string, dto: CreateDeliveryOrderDto): unknown;
+    update(tenantId: string, id: string, dto: UpdateDeliveryOrderDto): unknown;
+    confirm(tenantId: string, id: string): unknown;
+    prepare(tenantId: string, id: string): unknown;
+    ready(tenantId: string, id: string): unknown;
     dispatch(tenantId: string, id: string, body: {
         driverName?: string;
         driverPhone?: string;
-    }): Promise<any>;
-    deliver(tenantId: string, id: string): Promise<any>;
+    }): unknown;
+    deliver(tenantId: string, id: string): unknown;
     cancel(tenantId: string, id: string, body: {
         reason?: string;
-    }): Promise<any>;
-    getZones(tenantId: string): Promise<unknown>;
-    createZone(tenantId: string, dto: CreateZoneDto): Promise<any>;
-    updateZone(tenantId: string, id: string, dto: UpdateZoneDto): Promise<any>;
-    deleteZone(tenantId: string, id: string): Promise<{
-        success: boolean;
-    }>;
-    getSettings(tenantId: string): Promise<any>;
-    updateSettings(tenantId: string, dto: UpdateDeliverySettingsDto): Promise<any>;
+    }): unknown;
+    getZones(tenantId: string): unknown;
+    createZone(tenantId: string, dto: CreateZoneDto): unknown;
+    updateZone(tenantId: string, id: string, dto: UpdateZoneDto): unknown;
+    deleteZone(tenantId: string, id: string): unknown;
+    getSettings(tenantId: string): unknown;
+    updateSettings(tenantId: string, dto: UpdateDeliverySettingsDto): unknown;
 }
