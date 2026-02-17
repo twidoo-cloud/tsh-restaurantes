@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>POS para Restaurantes — Twidoo Smart Hub</title>
+  <meta name="description" content="Sistema POS completo para restaurantes ecuatorianos. Punto de venta, cocina en tiempo real, facturación electrónica SRI, inventario, delivery y más.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --bg-raised: #12121a;
+      --bg-card: #16161f;
+      --border: #1e1e2e;
+      --border-hover: #2a2a3e;
+      --text: #e4e4ed;
+      --text-dim: #8888a0;
+      --text-muted: #55556a;
+      --accent: #00d4aa;
+      --accent-glow: rgba(0, 212, 170, 0.15);
+      --accent-strong: rgba(0, 212, 170, 0.25);
+      --accent2: #6366f1;
+      --accent2-glow: rgba(99, 102, 241, 0.15);
+      --orange: #f59e0b;
+      --orange-glow: rgba(245, 158, 11, 0.15);
+      --gradient: linear-gradient(135deg, #00d4aa 0%, #6366f1 50%, #f59e0b 100%);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --font-body: 'Instrument Sans', sans-serif;
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-body); background: var(--bg); color: var(--text);
+      line-height: 1.6; overflow-x: hidden; -webkit-font-smoothing: antialiased;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+    /* ═══ NAV ═══ */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(10, 10, 15, 0.85); backdrop-filter: blur(20px) saturate(1.8);
+      border-bottom: 1px solid var(--border);
+    }
+    nav .container { display: flex; align-items: center; justify-content: space-between; height: 72px; }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--font-display); font-weight: 700; font-size: 1.25rem;
+      color: var(--text); text-decoration: none;
+    }
+    .nav-logo .logo-icon {
+      width: 36px; height: 36px; border-radius: 10px; background: var(--gradient);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; font-weight: 700; color: #000;
+    }
+    .nav-back {
+      color: var(--text-dim); text-decoration: none; font-size: 0.88rem;
+      display: flex; align-items: center; gap: 6px; transition: color 0.3s;
+    }
+    .nav-back:hover { color: var(--accent); }
+    .nav-actions { display: flex; gap: 12px; align-items: center; }
+    .btn-ghost {
+      color: var(--text-dim); padding: 10px 20px; border-radius: 50px;
+      font-weight: 500; font-size: 0.85rem; text-decoration: none;
+      border: 1px solid var(--border); transition: all 0.3s;
+    }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-accent {
+      background: var(--accent); color: #000; padding: 10px 24px; border-radius: 50px;
+      font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: all 0.3s;
+    }
+    .btn-accent:hover { box-shadow: 0 0 30px var(--accent-glow); transform: translateY(-1px); }
+
+    /* ═══ HERO ═══ */
+    .hero {
+      padding: 140px 0 100px; position: relative; overflow: hidden; text-align: center;
+    }
+    .hero::before {
+      content: ''; position: absolute; top: -30%; left: 20%; width: 60%; height: 100%;
+      background: radial-gradient(ellipse, var(--accent-glow) 0%, transparent 70%);
+      animation: heroFloat 10s ease-in-out infinite alternate;
+    }
+    @keyframes heroFloat {
+      0% { transform: translateY(0) scale(1); }
+      100% { transform: translateY(-20px) scale(1.05); }
+    }
+    .hero .container { position: relative; z-index: 1; }
+    .hero-emoji { font-size: 4rem; margin-bottom: 24px; display: block; }
+    .hero h1 {
+      font-family: var(--font-display); font-size: clamp(2.5rem, 5.5vw, 4rem);
+      font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 20px;
+    }
+    .hero h1 .highlight {
+      background: var(--gradient); -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .hero p {
+      font-size: 1.15rem; color: var(--text-dim); max-width: 640px;
+      margin: 0 auto 40px; line-height: 1.7;
+    }
+    .hero-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .btn-large {
+      padding: 16px 36px; border-radius: 50px; font-weight: 600; font-size: 1rem;
+      text-decoration: none; transition: all 0.3s; display: inline-flex;
+      align-items: center; gap: 10px; font-family: var(--font-body);
+    }
+    .btn-large-primary { background: var(--accent); color: #000; }
+    .btn-large-primary:hover { box-shadow: 0 0 50px var(--accent-glow); transform: translateY(-2px); }
+    .btn-large-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-large-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ═══ FEATURES GRID ═══ */
+    .features { padding: 100px 0; }
+    .section-label {
+      font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase;
+      letter-spacing: 0.15em; color: var(--accent); margin-bottom: 16px;
+    }
+    .section-title {
+      font-family: var(--font-display); font-size: clamp(2rem, 4vw, 2.8rem);
+      font-weight: 700; letter-spacing: -0.02em; margin-bottom: 16px;
+    }
+    .section-subtitle { color: var(--text-dim); font-size: 1.05rem; max-width: 600px; margin-bottom: 56px; }
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .feature-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 32px 28px; transition: all 0.4s; position: relative; overflow: hidden;
+    }
+    .feature-card:hover { border-color: var(--border-hover); transform: translateY(-3px); }
+    .feature-icon { font-size: 2rem; margin-bottom: 16px; display: block; }
+    .feature-card h3 {
+      font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; margin-bottom: 8px;
+    }
+    .feature-card p { color: var(--text-dim); font-size: 0.85rem; line-height: 1.7; }
+
+    /* ═══ BIG FEATURES ═══ */
+    .big-features { padding: 60px 0 100px; }
+    .big-feature {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center;
+      padding: 60px 0;
+    }
+    .big-feature.reverse { direction: rtl; }
+    .big-feature.reverse > * { direction: ltr; }
+    .big-feature-text h3 {
+      font-family: var(--font-display); font-size: 1.8rem; font-weight: 700;
+      margin-bottom: 16px; letter-spacing: -0.02em;
+    }
+    .big-feature-text p { color: var(--text-dim); font-size: 1rem; line-height: 1.8; margin-bottom: 20px; }
+    .big-feature-list { list-style: none; }
+    .big-feature-list li {
+      padding: 8px 0; font-size: 0.92rem; color: var(--text-dim);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .big-feature-list li::before { content: '✓'; color: var(--accent); font-weight: 700; }
+    .big-feature-visual {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 48px; display: flex; align-items: center; justify-content: center;
+      min-height: 360px; position: relative; overflow: hidden;
+    }
+    .big-feature-visual::after {
+      content: ''; position: absolute; bottom: -40%; right: -40%;
+      width: 80%; height: 80%; border-radius: 50%;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+    }
+    .bfv-content { position: relative; z-index: 1; text-align: center; }
+    .bfv-content .big-emoji { font-size: 5rem; display: block; margin-bottom: 16px; }
+    .bfv-content p {
+      font-family: var(--font-mono); font-size: 0.82rem; color: var(--text-muted);
+    }
+
+    /* ═══ BENEFITS BAR ═══ */
+    .benefits { padding: 80px 0; }
+    .benefits-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+    .benefit {
+      text-align: center; padding: 32px 20px; background: var(--bg-card);
+      border: 1px solid var(--border); border-radius: var(--radius);
+    }
+    .benefit-number {
+      font-family: var(--font-display); font-size: 2.5rem; font-weight: 700;
+      background: var(--gradient); -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .benefit-label { color: var(--text-dim); font-size: 0.85rem; margin-top: 8px; }
+
+    /* ═══ CTA ═══ */
+    .cta {
+      padding: 100px 0; text-align: center;
+    }
+    .cta-box {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px;
+      padding: 72px 48px; position: relative; overflow: hidden;
+    }
+    .cta-box::before {
+      content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+      background: radial-gradient(circle at 50% 50%, var(--accent-glow) 0%, transparent 50%);
+    }
+    .cta-box > * { position: relative; z-index: 1; }
+    .cta-box h2 {
+      font-family: var(--font-display); font-size: clamp(2rem, 4vw, 2.8rem);
+      font-weight: 700; margin-bottom: 16px; letter-spacing: -0.02em;
+    }
+    .cta-box p { color: var(--text-dim); font-size: 1.1rem; max-width: 500px; margin: 0 auto 40px; }
+    .cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+    /* ═══ FOOTER ═══ */
+    footer {
+      padding: 40px 0; border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    footer p { color: var(--text-muted); font-size: 0.82rem; }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    /* ═══ ANIMATIONS ═══ */
+    .fade-up {
+      opacity: 0; transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    /* ═══ RESPONSIVE ═══ */
+    @media (max-width: 768px) {
+      .features-grid { grid-template-columns: 1fr; }
+      .big-feature, .big-feature.reverse { grid-template-columns: 1fr; direction: ltr; }
+      .benefits-grid { grid-template-columns: repeat(2, 1fr); }
+      .hero { padding: 120px 0 80px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ NAV ═══ -->
+  <nav>
+    <div class="container">
+      <div style="display: flex; align-items: center; gap: 24px;">
+        <a href="/" class="nav-logo">
+          <div class="logo-icon">TSH</div>
+        </a>
+        <a href="/" class="nav-back">← Volver a TSH</a>
+      </div>
+      <div class="nav-actions">
+        <a href="https://restaurantes.twidoosmarthub.com" class="btn-ghost">Iniciar Sesión</a>
+        <a href="#demo" class="btn-accent">Solicitar Demo</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══ HERO ═══ -->
+  <section class="hero">
+    <div class="container">
+      <span class="hero-emoji">🍽️</span>
+      <h1>
+        El POS que tu restaurante<br>
+        <span class="highlight">necesita de verdad.</span>
+      </h1>
+      <p>
+        Sistema completo de gestión para restaurantes ecuatorianos. Punto de venta intuitivo, cocina en tiempo real, facturación electrónica SRI, inventario inteligente y mucho más. Todo en un solo lugar.
+      </p>
+      <div class="hero-btns">
+        <a href="https://restaurantes.twidoosmarthub.com" class="btn-large btn-large-primary">
+          Comenzar Ahora →
+        </a>
+        <a href="#demo" class="btn-large btn-large-secondary">
+          Solicitar Demo Gratuito
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FEATURES ═══ -->
+  <section class="features" id="funcionalidades">
+    <div class="container">
+      <p class="section-label fade-up">Funcionalidades</p>
+      <h2 class="section-title fade-up">Todo lo que necesitas, integrado.</h2>
+      <p class="section-subtitle fade-up">23+ módulos diseñados específicamente para la operación de restaurantes en Ecuador.</p>
+      <div class="features-grid">
+        <div class="feature-card fade-up">
+          <span class="feature-icon">💳</span>
+          <h3>Punto de Venta</h3>
+          <p>Interfaz táctil optimizada para velocidad. Comandos por voz, split de cuentas, descuentos, cupones y múltiples métodos de pago.</p>
+        </div>
+        <div class="feature-card fade-up">
+          <span class="feature-icon">👨‍🍳</span>
+          <h3>Cocina en Tiempo Real</h3>
+          <p>Display de cocina con WebSockets. Las órdenes llegan al instante, con alertas de urgencia, sonidos y sistema de bumping por estación.</p>
+        </div>
+        <div class="feature-card fade-up">
+          <span class="feature-icon">🧾</span>
+          <h3>Facturación SRI</h3>
+          <p>Facturación electrónica 100% integrada. XML con clave de acceso de 49 dígitos, firma digital, notas de crédito y envío automático al SRI.</p>
+        </div>
+        <div class="feature-card fade-up">
+          <span class="feature-icon">📦</span>
+          <h3>Inventario Inteligente</h3>
+          <p>Control de stock con recetas, merma automática por ventas, alertas de stock bajo, órdenes de compra y gestión de proveedores.</p>
+        </div>
+        <div class="feature-card fade-up">
+          <span class="feature-icon">🏪</span>
+          <h3>Multi-Sucursal</h3>
+          <p>Opera múltiples locales desde un solo sistema. Inventario independiente por sucursal, productos compartidos y reportes consolidados.</p>
+        </div>
+        <div class="feature-card fade-up">
+          <span class="feature-icon">🪑</span>
+          <h3>Gestión de Mesas</h3>
+          <p>Mapa visual de mesas en tiempo real. Transferir, unir y dividir mesas. Control de zonas y estados de ocupación.</p>
+        </div>
+        <div class="feature-card fade-up">
+          <span class="feature-icon">🛵</span>
+          <h3>Delivery</h3>
+          <p>Gestión de pedidos a domicilio con zonas de cobertura, tracking de repartidores y tiempos estimados de entrega.</p>
+        </div>
+        <div class="feature-card fade-up">
+          <span class="feature-icon">⭐</span>
+          <h3>Programa de Lealtad</h3>
+          <p>Fideliza a tus clientes con puntos, niveles y recompensas. Historial de compras y promociones personalizadas.</p>
+        </div>
+        <div class="feature-card fade-up">
+          <span class="feature-icon">📊</span>
+          <h3>Reportes y Analytics</h3>
+          <p>Dashboard con ventas en tiempo real, productos más vendidos, horas pico, rendimiento de meseros y más.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ BIG FEATURES ═══ -->
+  <section class="big-features">
+    <div class="container">
+
+      <div class="big-feature fade-up">
+        <div class="big-feature-text">
+          <h3>Facturación electrónica sin dolor de cabeza.</h3>
+          <p>Cumple con el SRI sin complicaciones. Nuestro sistema genera facturas electrónicas automáticamente desde el POS, con todos los requisitos fiscales de Ecuador.</p>
+          <ul class="big-feature-list">
+            <li>Clave de acceso de 49 dígitos con módulo 11</li>
+            <li>Firma digital con certificado .p12</li>
+            <li>IVA 15% configurado por defecto</li>
+            <li>Notas de crédito automáticas</li>
+            <li>Ambiente de pruebas y producción</li>
+            <li>Envío y consulta directa al SRI</li>
+          </ul>
+        </div>
+        <div class="big-feature-visual">
+          <div class="bfv-content">
+            <span class="big-emoji">🧾</span>
+            <p>Factura electrónica SRI<br>XML + SOAP + Firma Digital</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="big-feature reverse fade-up">
+        <div class="big-feature-text">
+          <h3>Cocina conectada en tiempo real.</h3>
+          <p>Cada orden que se toma en el POS aparece instantáneamente en el display de cocina. Sin papeles, sin gritos, sin errores.</p>
+          <ul class="big-feature-list">
+            <li>WebSockets para actualizaciones instantáneas</li>
+            <li>Estaciones configurables (parrilla, bar, postres)</li>
+            <li>Alertas de urgencia por tiempo</li>
+            <li>Sonidos personalizables por prioridad</li>
+            <li>Sistema de bumping para marcar como listo</li>
+            <li>Funciona en tablet, PC o cualquier pantalla</li>
+          </ul>
+        </div>
+        <div class="big-feature-visual">
+          <div class="bfv-content">
+            <span class="big-emoji">👨‍🍳</span>
+            <p>Kitchen Display System<br>Real-time con WebSockets</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="big-feature fade-up">
+        <div class="big-feature-text">
+          <h3>Opera varias sucursales como una sola.</h3>
+          <p>Si tienes más de un local, no necesitas sistemas separados. Gestiona todas tus sucursales desde un mismo panel con datos independientes donde importa.</p>
+          <ul class="big-feature-list">
+            <li>Productos y recetas compartidos</li>
+            <li>Inventario independiente por local</li>
+            <li>Cajas y turnos por sucursal</li>
+            <li>Reportes consolidados y por sucursal</li>
+            <li>Permisos granulares por usuario y local</li>
+            <li>Facturación con establecimiento SRI diferenciado</li>
+          </ul>
+        </div>
+        <div class="big-feature-visual">
+          <div class="bfv-content">
+            <span class="big-emoji">🏪</span>
+            <p>Multi-Sucursal<br>Un sistema, todos tus locales</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══ BENEFITS BAR ═══ -->
+  <section class="benefits">
+    <div class="container">
+      <div class="benefits-grid">
+        <div class="benefit fade-up">
+          <div class="benefit-number">23+</div>
+          <div class="benefit-label">Módulos integrados</div>
+        </div>
+        <div class="benefit fade-up">
+          <div class="benefit-number">< 1s</div>
+          <div class="benefit-label">Orden a cocina</div>
+        </div>
+        <div class="benefit fade-up">
+          <div class="benefit-number">100%</div>
+          <div class="benefit-label">Cumplimiento SRI</div>
+        </div>
+        <div class="benefit fade-up">
+          <div class="benefit-number">24/7</div>
+          <div class="benefit-label">Soporte técnico</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ CTA ═══ -->
+  <section class="cta" id="demo">
+    <div class="container">
+      <div class="cta-box fade-up">
+        <h2>¿Listo para modernizar tu restaurante?</h2>
+        <p>Prueba el sistema completo sin compromiso. Te configuramos un ambiente demo con datos reales de tu tipo de restaurante.</p>
+        <div class="cta-btns">
+          <a href="https://restaurantes.twidoosmarthub.com" class="btn-large btn-large-primary">
+            Comenzar Ahora →
+          </a>
+          <a href="https://wa.me/593999999999?text=Hola%2C%20me%20interesa%20el%20POS%20para%20restaurantes" target="_blank" class="btn-large btn-large-secondary">
+            💬 Solicitar Demo por WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer>
+    <div class="container">
+      <p>© 2026 <a href="/">Twidoo Smart Hub</a> — POS para Restaurantes. Hecho en Ecuador 🇪🇨</p>
+    </div>
+  </footer>
+
+  <!-- ═══ SCROLL ANIMATIONS ═══ -->
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>

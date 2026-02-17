@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Twidoo Smart Hub — Ecosistema Tecnológico</title>
+  <meta name="description" content="TSH es un ecosistema tecnológico: desarrollamos sistemas POS, CRM y ERP + implementamos cloud y Docker + soporte continuo para tu negocio.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --bg-raised: #12121a;
+      --bg-card: #16161f;
+      --border: #1e1e2e;
+      --border-hover: #2a2a3e;
+      --text: #e4e4ed;
+      --text-dim: #8888a0;
+      --text-muted: #55556a;
+      --accent: #00d4aa;
+      --accent-glow: rgba(0, 212, 170, 0.15);
+      --accent2: #6366f1;
+      --accent2-glow: rgba(99, 102, 241, 0.15);
+      --accent3: #f59e0b;
+      --gradient: linear-gradient(135deg, #00d4aa 0%, #6366f1 50%, #f59e0b 100%);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --font-body: 'Instrument Sans', sans-serif;
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+    /* ═══ NAV ═══ */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(10, 10, 15, 0.85);
+      backdrop-filter: blur(20px) saturate(1.8);
+      border-bottom: 1px solid var(--border);
+    }
+    nav .container {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 72px;
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--font-display); font-weight: 700; font-size: 1.25rem;
+      color: var(--text); text-decoration: none;
+    }
+    .nav-logo .logo-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--gradient); display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; font-weight: 700; color: #000;
+    }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a {
+      color: var(--text-dim); text-decoration: none; font-size: 0.9rem; font-weight: 500;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-cta {
+      background: var(--accent); color: #000; padding: 10px 24px; border-radius: 50px;
+      font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: all 0.3s;
+      border: none; cursor: pointer;
+    }
+    .nav-cta:hover { box-shadow: 0 0 30px var(--accent-glow), 0 0 60px var(--accent-glow); transform: translateY(-1px); }
+    .nav-mobile { display: none; background: none; border: none; color: var(--text); cursor: pointer; padding: 8px; }
+
+    /* ═══ HERO ═══ */
+    .hero {
+      padding: 160px 0 120px;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+      background: radial-gradient(circle at 30% 40%, var(--accent-glow) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 60%, var(--accent2-glow) 0%, transparent 50%);
+      animation: heroGlow 12s ease-in-out infinite alternate;
+    }
+    @keyframes heroGlow {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(-5%, 5%) scale(1.1); }
+    }
+    .hero .container { position: relative; z-index: 1; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px 6px 8px; border-radius: 50px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      font-size: 0.8rem; color: var(--text-dim); margin-bottom: 32px;
+    }
+    .hero-badge .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .hero h1 {
+      font-family: var(--font-display); font-size: clamp(2.8rem, 6vw, 4.5rem);
+      font-weight: 700; line-height: 1.08; letter-spacing: -0.03em;
+      margin-bottom: 24px; max-width: 800px;
+    }
+    .hero h1 .gradient-text {
+      background: var(--gradient); -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .hero p {
+      font-size: 1.15rem; color: var(--text-dim); max-width: 560px;
+      line-height: 1.7; margin-bottom: 40px;
+    }
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--accent); color: #000; padding: 14px 32px; border-radius: 50px;
+      font-weight: 600; font-size: 0.95rem; text-decoration: none;
+      transition: all 0.3s; border: none; cursor: pointer;
+      font-family: var(--font-body);
+    }
+    .btn-primary:hover { box-shadow: 0 0 40px var(--accent-glow); transform: translateY(-2px); }
+    .btn-secondary {
+      background: transparent; color: var(--text); padding: 14px 32px; border-radius: 50px;
+      font-weight: 600; font-size: 0.95rem; text-decoration: none;
+      border: 1px solid var(--border); transition: all 0.3s; cursor: pointer;
+      font-family: var(--font-body);
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ═══ PILARES ═══ */
+    .pillars { padding: 100px 0; }
+    .section-label {
+      font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase;
+      letter-spacing: 0.15em; color: var(--accent); margin-bottom: 16px;
+    }
+    .section-title {
+      font-family: var(--font-display); font-size: clamp(2rem, 4vw, 2.8rem);
+      font-weight: 700; letter-spacing: -0.02em; margin-bottom: 16px;
+    }
+    .section-subtitle { color: var(--text-dim); font-size: 1.05rem; max-width: 600px; margin-bottom: 56px; }
+    .pillars-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .pillar-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 40px 32px; transition: all 0.4s; position: relative; overflow: hidden;
+    }
+    .pillar-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--gradient); opacity: 0; transition: opacity 0.4s;
+    }
+    .pillar-card:hover { border-color: var(--border-hover); transform: translateY(-4px); }
+    .pillar-card:hover::before { opacity: 1; }
+    .pillar-icon {
+      width: 56px; height: 56px; border-radius: 14px; display: flex;
+      align-items: center; justify-content: center; margin-bottom: 24px;
+      font-size: 1.5rem;
+    }
+    .pillar-card h3 {
+      font-family: var(--font-display); font-size: 1.25rem; font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .pillar-card p { color: var(--text-dim); font-size: 0.92rem; line-height: 1.7; }
+
+    /* ═══ SISTEMAS ═══ */
+    .sistemas { padding: 100px 0; }
+    .sistemas-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .sistema-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 36px 28px; transition: all 0.4s; position: relative; overflow: hidden;
+    }
+    .sistema-card:hover { border-color: var(--border-hover); }
+    .sistema-badge {
+      display: inline-flex; padding: 4px 12px; border-radius: 50px;
+      font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.1em; margin-bottom: 20px;
+    }
+    .badge-live { background: rgba(0, 212, 170, 0.1); color: var(--accent); border: 1px solid rgba(0, 212, 170, 0.2); }
+    .badge-soon { background: rgba(136, 136, 160, 0.1); color: var(--text-muted); border: 1px solid rgba(136, 136, 160, 0.2); }
+    .sistema-card h3 {
+      font-family: var(--font-display); font-size: 1.2rem; font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .sistema-card p { color: var(--text-dim); font-size: 0.88rem; line-height: 1.7; margin-bottom: 20px; }
+    .sistema-features {
+      list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;
+    }
+    .sistema-features li {
+      background: var(--bg-raised); padding: 4px 12px; border-radius: 6px;
+      font-size: 0.78rem; color: var(--text-dim); border: 1px solid var(--border);
+    }
+    .sistema-link {
+      display: inline-flex; align-items: center; gap: 8px;
+      color: var(--accent); font-weight: 600; font-size: 0.88rem;
+      text-decoration: none; transition: gap 0.3s;
+    }
+    .sistema-link:hover { gap: 12px; }
+    .sistema-link .arrow { transition: transform 0.3s; }
+    .sistema-link:hover .arrow { transform: translateX(4px); }
+
+    /* ═══ ABOUT ═══ */
+    .about { padding: 100px 0; }
+    .about-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center;
+    }
+    .about-text h2 {
+      font-family: var(--font-display); font-size: clamp(2rem, 3.5vw, 2.5rem);
+      font-weight: 700; letter-spacing: -0.02em; margin-bottom: 24px;
+    }
+    .about-text p { color: var(--text-dim); font-size: 1rem; line-height: 1.8; margin-bottom: 16px; }
+    .about-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 40px; }
+    .stat { text-align: center; }
+    .stat-number {
+      font-family: var(--font-display); font-size: 2.2rem; font-weight: 700;
+      background: var(--gradient); -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .stat-label { font-size: 0.82rem; color: var(--text-muted); margin-top: 4px; }
+    .about-visual {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 48px; position: relative; overflow: hidden;
+    }
+    .about-visual::before {
+      content: ''; position: absolute; top: -100px; right: -100px;
+      width: 300px; height: 300px; border-radius: 50%;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+    }
+    .about-stack { position: relative; z-index: 1; }
+    .stack-item {
+      display: flex; align-items: center; gap: 16px;
+      padding: 16px 20px; background: var(--bg-raised); border-radius: var(--radius-sm);
+      margin-bottom: 12px; border: 1px solid var(--border);
+    }
+    .stack-icon { font-size: 1.5rem; width: 40px; text-align: center; }
+    .stack-item strong { font-size: 0.9rem; }
+    .stack-item span { font-size: 0.8rem; color: var(--text-dim); display: block; }
+
+    /* ═══ PRICING ═══ */
+    .pricing { padding: 100px 0; }
+    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .price-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 40px 32px; transition: all 0.4s; position: relative;
+    }
+    .price-card.featured { border-color: var(--accent); }
+    .price-card.featured::before {
+      content: 'Popular'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      background: var(--accent); color: #000; padding: 4px 16px; border-radius: 50px;
+      font-size: 0.75rem; font-weight: 700;
+    }
+    .price-card h3 {
+      font-family: var(--font-display); font-size: 1.2rem; font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .price-card .price {
+      font-family: var(--font-display); font-size: 2.5rem; font-weight: 700;
+      margin: 20px 0 8px;
+    }
+    .price-card .price span { font-size: 0.9rem; color: var(--text-dim); font-weight: 400; }
+    .price-card .price-desc { color: var(--text-muted); font-size: 0.82rem; margin-bottom: 28px; }
+    .price-features { list-style: none; margin-bottom: 32px; }
+    .price-features li {
+      padding: 8px 0; font-size: 0.88rem; color: var(--text-dim);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .price-features li::before {
+      content: '✓'; color: var(--accent); font-weight: 700; font-size: 0.9rem;
+    }
+    .price-btn {
+      display: block; width: 100%; text-align: center; padding: 14px; border-radius: 12px;
+      font-weight: 600; font-size: 0.9rem; text-decoration: none; transition: all 0.3s;
+      font-family: var(--font-body); cursor: pointer;
+    }
+    .price-btn-primary { background: var(--accent); color: #000; border: none; }
+    .price-btn-primary:hover { box-shadow: 0 0 30px var(--accent-glow); }
+    .price-btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .price-btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ═══ CONTACT ═══ */
+    .contact { padding: 100px 0; }
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+    .contact-info h2 {
+      font-family: var(--font-display); font-size: clamp(2rem, 3.5vw, 2.5rem);
+      font-weight: 700; letter-spacing: -0.02em; margin-bottom: 20px;
+    }
+    .contact-info p { color: var(--text-dim); font-size: 1rem; line-height: 1.8; margin-bottom: 32px; }
+    .contact-methods { display: flex; flex-direction: column; gap: 16px; }
+    .contact-method {
+      display: flex; align-items: center; gap: 16px;
+      padding: 16px 20px; background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); text-decoration: none; color: var(--text);
+      transition: border-color 0.3s;
+    }
+    .contact-method:hover { border-color: var(--accent); }
+    .contact-method .cm-icon {
+      width: 44px; height: 44px; border-radius: 12px; display: flex;
+      align-items: center; justify-content: center; font-size: 1.2rem;
+      background: var(--accent-glow);
+    }
+    .contact-method strong { font-size: 0.9rem; }
+    .contact-method span { font-size: 0.82rem; color: var(--text-dim); display: block; }
+    .contact-form {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 40px;
+    }
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 8px;
+      color: var(--text-dim);
+    }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%; padding: 12px 16px; border-radius: var(--radius-sm);
+      background: var(--bg-raised); border: 1px solid var(--border); color: var(--text);
+      font-family: var(--font-body); font-size: 0.9rem; transition: border-color 0.3s;
+      outline: none;
+    }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      border-color: var(--accent);
+    }
+    .form-group textarea { resize: vertical; min-height: 120px; }
+    .form-submit {
+      width: 100%; padding: 14px; border-radius: 12px; background: var(--accent);
+      color: #000; font-weight: 600; font-size: 0.95rem; border: none; cursor: pointer;
+      font-family: var(--font-body); transition: all 0.3s;
+    }
+    .form-submit:hover { box-shadow: 0 0 30px var(--accent-glow); }
+
+    /* ═══ FOOTER ═══ */
+    footer {
+      padding: 60px 0 32px; border-top: 1px solid var(--border);
+    }
+    .footer-grid {
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px;
+      margin-bottom: 48px;
+    }
+    .footer-brand p { color: var(--text-dim); font-size: 0.88rem; line-height: 1.7; margin-top: 16px; max-width: 320px; }
+    .footer-col h4 {
+      font-family: var(--font-display); font-size: 0.9rem; font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .footer-col a {
+      display: block; color: var(--text-dim); text-decoration: none; font-size: 0.85rem;
+      padding: 4px 0; transition: color 0.3s;
+    }
+    .footer-col a:hover { color: var(--accent); }
+    .footer-bottom {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 24px; border-top: 1px solid var(--border);
+      font-size: 0.8rem; color: var(--text-muted);
+    }
+
+    /* ═══ ANIMATIONS ═══ */
+    .fade-up {
+      opacity: 0; transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    /* ═══ RESPONSIVE ═══ */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .nav-mobile { display: block; }
+      .hero { padding: 120px 0 80px; }
+      .pillars-grid, .sistemas-grid, .pricing-grid { grid-template-columns: 1fr; }
+      .about-grid, .contact-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+      .about-stats { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ NAV ═══ -->
+  <nav>
+    <div class="container">
+      <a href="/" class="nav-logo">
+        <div class="logo-icon">TSH</div>
+        Twidoo Smart Hub
+      </a>
+      <ul class="nav-links">
+        <li><a href="#sistemas">Sistemas</a></li>
+        <li><a href="#nosotros">Nosotros</a></li>
+        <li><a href="#precios">Precios</a></li>
+        <li><a href="#contacto">Contacto</a></li>
+      </ul>
+      <a href="#contacto" class="nav-cta">Solicitar Demo</a>
+      <button class="nav-mobile" onclick="document.querySelector('.nav-links').classList.toggle('show')" aria-label="Menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ═══ HERO ═══ -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-badge"><div class="dot"></div> Ecosistema tecnológico para negocios</div>
+      <h1>
+        Tu negocio merece<br>
+        <span class="gradient-text">tecnología de verdad.</span>
+      </h1>
+      <p>
+        TSH es un ecosistema donde desarrollamos sistemas y apps, implementamos infraestructura cloud con Docker, y brindamos soporte continuo. Todo conectado, todo gestionado.
+      </p>
+      <div class="hero-actions">
+        <a href="#sistemas" class="btn-primary">Explorar Sistemas</a>
+        <a href="#contacto" class="btn-secondary">Hablar con Ventas</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ PILARES ═══ -->
+  <section class="pillars" id="pilares">
+    <div class="container">
+      <p class="section-label fade-up">Qué hacemos</p>
+      <h2 class="section-title fade-up">Tres pilares, un ecosistema.</h2>
+      <p class="section-subtitle fade-up">No solo vendemos software — construimos, desplegamos y mantenemos toda la infraestructura que tu negocio necesita.</p>
+      <div class="pillars-grid">
+        <div class="pillar-card fade-up">
+          <div class="pillar-icon" style="background: var(--accent-glow);">⚡</div>
+          <h3>Desarrollo de Sistemas</h3>
+          <p>Creamos POS, CRM y ERP especializados por industria. Cada sistema es diseñado para resolver los problemas reales de tu tipo de negocio, con cumplimiento fiscal y operaciones en tiempo real.</p>
+        </div>
+        <div class="pillar-card fade-up">
+          <div class="pillar-icon" style="background: var(--accent2-glow);">☁️</div>
+          <h3>Cloud + Docker</h3>
+          <p>Implementamos tu infraestructura con contenedores Docker, bases de datos administradas, SSL automático y monitoreo 24/7. Tu sistema siempre disponible, escalable y seguro.</p>
+        </div>
+        <div class="pillar-card fade-up">
+          <div class="pillar-icon" style="background: rgba(245, 158, 11, 0.15);">🛡️</div>
+          <h3>Soporte Continuo</h3>
+          <p>Equipo dedicado que mantiene, actualiza y optimiza tu sistema. Actualizaciones regulatorias automáticas, backups diarios y atención directa cuando la necesites.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ SISTEMAS ═══ -->
+  <section class="sistemas" id="sistemas">
+    <div class="container">
+      <p class="section-label fade-up">Nuestros Sistemas</p>
+      <h2 class="section-title fade-up">Software especializado por industria.</h2>
+      <p class="section-subtitle fade-up">Cada vertical tiene sus propias reglas. Por eso desarrollamos sistemas que entienden tu negocio.</p>
+      <div class="sistemas-grid">
+
+        <!-- POS Restaurantes -->
+        <div class="sistema-card fade-up" style="border-color: rgba(0, 212, 170, 0.3);">
+          <span class="sistema-badge badge-live">● En Producción</span>
+          <h3>🍽️ POS Restaurantes</h3>
+          <p>Sistema completo de gestión para restaurantes ecuatorianos. Punto de venta, cocina en tiempo real, facturación electrónica SRI, inventario y más.</p>
+          <ul class="sistema-features">
+            <li>POS táctil</li>
+            <li>Cocina real-time</li>
+            <li>Facturación SRI</li>
+            <li>Multi-sucursal</li>
+            <li>Inventario</li>
+            <li>Delivery</li>
+          </ul>
+          <a href="/pos/restaurantes" class="sistema-link">
+            Ver detalles <span class="arrow">→</span>
+          </a>
+        </div>
+
+        <!-- POS Ferreterías -->
+        <div class="sistema-card fade-up">
+          <span class="sistema-badge badge-soon">Próximamente</span>
+          <h3>🔧 POS Ferreterías</h3>
+          <p>Gestión de inventario con corte por medida, precios por unidad/metro/kilo, catálogo extenso con variantes y facturación electrónica integrada.</p>
+          <ul class="sistema-features">
+            <li>Corte por medida</li>
+            <li>Precios por unidad</li>
+            <li>Catálogo extenso</li>
+            <li>Facturación SRI</li>
+          </ul>
+          <a href="#contacto" class="sistema-link" style="color: var(--text-muted);">
+            Notificarme <span class="arrow">→</span>
+          </a>
+        </div>
+
+        <!-- POS Veterinarias -->
+        <div class="sistema-card fade-up">
+          <span class="sistema-badge badge-soon">Próximamente</span>
+          <h3>🐾 POS Veterinarias</h3>
+          <p>Fichas médicas de pacientes, agenda de citas, farmacia veterinaria con control de lotes, historial clínico y facturación electrónica.</p>
+          <ul class="sistema-features">
+            <li>Fichas médicas</li>
+            <li>Agenda de citas</li>
+            <li>Farmacia + lotes</li>
+            <li>Historial clínico</li>
+          </ul>
+          <a href="#contacto" class="sistema-link" style="color: var(--text-muted);">
+            Notificarme <span class="arrow">→</span>
+          </a>
+        </div>
+
+        <!-- POS Farmacias -->
+        <div class="sistema-card fade-up">
+          <span class="sistema-badge badge-soon">Próximamente</span>
+          <h3>💊 POS Farmacias</h3>
+          <p>Control de lotes y caducidades, recetas médicas digitales, alertas de stock mínimo, dispensación controlada y cumplimiento regulatorio.</p>
+          <ul class="sistema-features">
+            <li>Control de lotes</li>
+            <li>Recetas médicas</li>
+            <li>Alertas de stock</li>
+            <li>Regulatorio</li>
+          </ul>
+          <a href="#contacto" class="sistema-link" style="color: var(--text-muted);">
+            Notificarme <span class="arrow">→</span>
+          </a>
+        </div>
+
+        <!-- Retail -->
+        <div class="sistema-card fade-up">
+          <span class="sistema-badge badge-soon">Próximamente</span>
+          <h3>🛒 POS Retail</h3>
+          <p>Punto de venta para tiendas y comercios. Lector de código de barras, variantes de producto, programa de lealtad y reportes de ventas.</p>
+          <ul class="sistema-features">
+            <li>Código de barras</li>
+            <li>Variantes</li>
+            <li>Programa lealtad</li>
+            <li>Reportes</li>
+          </ul>
+          <a href="#contacto" class="sistema-link" style="color: var(--text-muted);">
+            Notificarme <span class="arrow">→</span>
+          </a>
+        </div>
+
+        <!-- CRM -->
+        <div class="sistema-card fade-up">
+          <span class="sistema-badge badge-soon">En desarrollo</span>
+          <h3>📊 CRM</h3>
+          <p>Gestión de clientes, oportunidades de venta, seguimiento de leads, automatización de marketing y reportes de conversión.</p>
+          <ul class="sistema-features">
+            <li>Pipeline de ventas</li>
+            <li>Seguimiento leads</li>
+            <li>Email marketing</li>
+            <li>Analytics</li>
+          </ul>
+          <a href="#contacto" class="sistema-link" style="color: var(--text-muted);">
+            Notificarme <span class="arrow">→</span>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ ABOUT ═══ -->
+  <section class="about" id="nosotros">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-text fade-up">
+          <p class="section-label">Sobre Twidoo</p>
+          <h2>Tecnología ecuatoriana para negocios ecuatorianos.</h2>
+          <p>Somos un equipo de desarrollo enfocado en crear soluciones tecnológicas completas. No solo escribimos código — diseñamos, desplegamos, mantenemos y evolucionamos los sistemas que tu negocio necesita.</p>
+          <p>Cada sistema que creamos nace del entendimiento profundo de cómo operan los negocios en Ecuador: cumplimiento con el SRI, precios en USD, zona horaria, y las particularidades de cada industria.</p>
+          <div class="about-stats">
+            <div class="stat">
+              <div class="stat-number">23+</div>
+              <div class="stat-label">Módulos integrados</div>
+            </div>
+            <div class="stat">
+              <div class="stat-number">99.9%</div>
+              <div class="stat-label">Uptime garantizado</div>
+            </div>
+            <div class="stat">
+              <div class="stat-number">24/7</div>
+              <div class="stat-label">Soporte disponible</div>
+            </div>
+          </div>
+        </div>
+        <div class="about-visual fade-up">
+          <div class="about-stack">
+            <div class="stack-item">
+              <div class="stack-icon">⚛️</div>
+              <div><strong>Next.js + React</strong><span>Frontend moderno y rápido</span></div>
+            </div>
+            <div class="stack-item">
+              <div class="stack-icon">🔗</div>
+              <div><strong>NestJS + PostgreSQL</strong><span>Backend robusto y escalable</span></div>
+            </div>
+            <div class="stack-item">
+              <div class="stack-icon">🐳</div>
+              <div><strong>Docker + Nginx</strong><span>Infraestructura containerizada</span></div>
+            </div>
+            <div class="stack-item">
+              <div class="stack-icon">🔒</div>
+              <div><strong>SSL + Backups</strong><span>Seguridad y respaldos automáticos</span></div>
+            </div>
+            <div class="stack-item">
+              <div class="stack-icon">📡</div>
+              <div><strong>WebSockets</strong><span>Comunicación en tiempo real</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ PRICING ═══ -->
+  <section class="pricing" id="precios">
+    <div class="container">
+      <p class="section-label fade-up">Precios</p>
+      <h2 class="section-title fade-up">Planes claros, sin sorpresas.</h2>
+      <p class="section-subtitle fade-up">Elige el plan que se adapte a tu negocio. Todos incluyen soporte y actualizaciones.</p>
+      <div class="pricing-grid">
+
+        <div class="price-card fade-up">
+          <h3>Básico</h3>
+          <div class="price">$29 <span>/mes</span></div>
+          <div class="price-desc">Para negocios que inician</div>
+          <ul class="price-features">
+            <li>1 sucursal</li>
+            <li>3 usuarios</li>
+            <li>POS completo</li>
+            <li>Facturación electrónica SRI</li>
+            <li>Reportes básicos</li>
+            <li>Soporte por email</li>
+          </ul>
+          <a href="#contacto" class="price-btn price-btn-secondary">Comenzar</a>
+        </div>
+
+        <div class="price-card featured fade-up">
+          <h3>Profesional</h3>
+          <div class="price">$59 <span>/mes</span></div>
+          <div class="price-desc">Para negocios en crecimiento</div>
+          <ul class="price-features">
+            <li>3 sucursales</li>
+            <li>10 usuarios</li>
+            <li>Todos los módulos</li>
+            <li>Cocina en tiempo real</li>
+            <li>Inventario avanzado</li>
+            <li>Delivery + reservas</li>
+            <li>Soporte prioritario</li>
+          </ul>
+          <a href="#contacto" class="price-btn price-btn-primary">Comenzar</a>
+        </div>
+
+        <div class="price-card fade-up">
+          <h3>Empresa</h3>
+          <div class="price">Custom</div>
+          <div class="price-desc">Para cadenas y franquicias</div>
+          <ul class="price-features">
+            <li>Sucursales ilimitadas</li>
+            <li>Usuarios ilimitados</li>
+            <li>API dedicada</li>
+            <li>White-label</li>
+            <li>SLA garantizado</li>
+            <li>Soporte dedicado 24/7</li>
+            <li>Integraciones custom</li>
+          </ul>
+          <a href="#contacto" class="price-btn price-btn-secondary">Contactar</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ CONTACT ═══ -->
+  <section class="contact" id="contacto">
+    <div class="container">
+      <div class="contact-grid">
+        <div class="contact-info fade-up">
+          <p class="section-label">Contacto</p>
+          <h2>¿Listo para transformar tu negocio?</h2>
+          <p>Cuéntanos sobre tu negocio y te mostraremos cómo TSH puede ayudarte. Sin compromiso, sin presión.</p>
+          <div class="contact-methods">
+            <a href="https://wa.me/593999999999" class="contact-method" target="_blank">
+              <div class="cm-icon">💬</div>
+              <div><strong>WhatsApp</strong><span>Respuesta inmediata</span></div>
+            </a>
+            <a href="mailto:hola@twidoo.co" class="contact-method">
+              <div class="cm-icon">✉️</div>
+              <div><strong>hola@twidoo.co</strong><span>Te respondemos en 24h</span></div>
+            </a>
+            <a href="tel:+593999999999" class="contact-method">
+              <div class="cm-icon">📞</div>
+              <div><strong>+593 99 999 9999</strong><span>Lun-Vie 9am-6pm</span></div>
+            </a>
+          </div>
+        </div>
+        <div class="contact-form fade-up">
+          <form action="#" method="POST" onsubmit="event.preventDefault(); alert('¡Gracias! Nos pondremos en contacto pronto.'); this.reset();">
+            <div class="form-group">
+              <label>Nombre</label>
+              <input type="text" name="name" placeholder="Tu nombre" required>
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" name="email" placeholder="tu@email.com" required>
+            </div>
+            <div class="form-group">
+              <label>Tipo de negocio</label>
+              <select name="business">
+                <option value="">Seleccionar...</option>
+                <option value="restaurante">Restaurante / Cafetería</option>
+                <option value="ferreteria">Ferretería</option>
+                <option value="veterinaria">Veterinaria</option>
+                <option value="farmacia">Farmacia</option>
+                <option value="retail">Tienda / Retail</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Mensaje</label>
+              <textarea name="message" placeholder="Cuéntanos sobre tu negocio..."></textarea>
+            </div>
+            <button type="submit" class="form-submit">Solicitar Demo Gratuito</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="/" class="nav-logo">
+            <div class="logo-icon">TSH</div>
+            Twidoo Smart Hub
+          </a>
+          <p>Ecosistema tecnológico para negocios. Desarrollamos, implementamos y mantenemos la tecnología que tu negocio necesita.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Sistemas</h4>
+          <a href="/pos/restaurantes">POS Restaurantes</a>
+          <a href="#">POS Ferreterías</a>
+          <a href="#">POS Veterinarias</a>
+          <a href="#">POS Farmacias</a>
+          <a href="#">CRM</a>
+        </div>
+        <div class="footer-col">
+          <h4>Empresa</h4>
+          <a href="#nosotros">Sobre Nosotros</a>
+          <a href="#precios">Precios</a>
+          <a href="#contacto">Contacto</a>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <a href="#">Términos de Servicio</a>
+          <a href="#">Política de Privacidad</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Twidoo Smart Hub. Todos los derechos reservados.</span>
+        <span>Hecho en Ecuador 🇪🇨</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ═══ SCROLL ANIMATIONS ═══ -->
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>
