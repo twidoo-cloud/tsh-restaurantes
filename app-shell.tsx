@@ -31,7 +31,7 @@ export interface NavSection {
   id: string;
   label: string;
   icon: any;
-  items: { path: string; label: string; icon: string; roles: string[] }[];
+  items: { path: string; label: string; icon: string; roles: string[]; locked?: boolean }[];
 }
 
 const NAV_SECTIONS: NavSection[] = [
