@@ -92,7 +92,7 @@ export default function AdminPage() {
   if (role !== 'owner') return (
     <AppShell>
       <div className="flex h-full items-center justify-center">
-        <div className="text-center"><AlertCircle size={48} className="mx-auto mb-3 text-red-400" /><p className="text-lg font-bold text-gray-700">Acceso denegado</p><p className="text-sm text-gray-500">Solo el dueño puede gestionar tenants</p></div>
+        <div className="text-center"><AlertCircle size={48} className="mx-auto mb-3 text-red-400" /><p className="text-lg font-bold text-gray-700">Acceso denegado</p><p className="text-sm text-gray-500">Solo el gerente puede gestionar tenants</p></div>
       </div>
     </AppShell>
   );
@@ -238,7 +238,7 @@ export default function AdminPage() {
               </div>
 
               <div className="border-t pt-3 mt-3">
-                <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Usuario Dueño</p>
+                <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Usuario Gerente</p>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="mb-1 block text-xs font-medium text-gray-500">Nombre</label>

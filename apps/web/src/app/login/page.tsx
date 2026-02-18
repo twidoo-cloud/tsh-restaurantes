@@ -198,10 +198,10 @@ function LoginContent() {
   };
 
   const quickAccessUsers = useMemo(() => [
-    { email: 'carlos@lacosta.ec', label: 'Dueño', role: 'owner', icon: '👔' },
-    { email: 'cajera@lacosta.ec', label: 'Cajera', role: 'cashier', icon: '💰' },
-    { email: 'mesero@lacosta.ec', label: 'Mesero', role: 'waiter', icon: '🍽️' },
-    { email: 'cocina@lacosta.ec', label: 'Cocina', role: 'kitchen', icon: '🔥' },
+    { email: 'admin@cevicheria.com', label: 'Gerente', role: 'owner', icon: '👔' },
+    { email: 'cajero@cevicheria.com', label: 'Cajero', role: 'cashier', icon: '💰' },
+    { email: 'mesero1@cevicheria.com', label: 'Mesero', role: 'waiter', icon: '🍽️' },
+    { email: 'cocina@cevicheria.com', label: 'Cocina', role: 'kitchen', icon: '🔥' },
   ], []);
 
   // ── PIN Pad Digits ──
