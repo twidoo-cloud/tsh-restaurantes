@@ -12,12 +12,13 @@ import {
   Palette, Building, Globe, FileText, Save, Eye, RotateCcw, Users,
   Plus, Pencil, X, Lock, UserCircle, Printer, Download, Database, Loader2
 } from 'lucide-react';
+import { PrintSettings } from '@/components/print-settings';
 
 const get = <T,>(p: string): Promise<T> => api.get<T>(p);
 const put = <T,>(p: string, b: any): Promise<T> => api.put<T>(p, b);
 const post = <T,>(p: string, b: any): Promise<T> => api.post<T>(p, b);
 
-type Tab = 'branding' | 'business' | 'locale' | 'receipt' | 'templates' | 'users' | 'backup';
+type Tab = 'branding' | 'business' | 'locale' | 'receipt' | 'templates' | 'printer' | 'users' | 'backup';
 
 const COLOR_PRESETS = [
   { name: 'Azul Corp.', primary: '#1e3a8a', sidebar: '#1e293b', accent: '#2563eb' },
@@ -120,7 +121,6 @@ function SettingsContent() {
     setSaving(true);
     try {
       const result = await put<any>('/auth/profile', { firstName: myProfile.firstName, lastName: myProfile.lastName });
-      // Update local store
       const user = store.user;
       if (user) {
         const updated = { ...user, firstName: result.firstName, lastName: result.lastName };
@@ -224,6 +224,7 @@ function SettingsContent() {
     ...(isOwnerAdmin ? [
       { id: 'receipt' as Tab, icon: FileText, label: 'Recibos' },
       { id: 'templates' as Tab, icon: Printer, label: 'Plantillas Impresión' },
+      { id: 'printer' as Tab, icon: Printer, label: 'Impresora' },
       { id: 'users' as Tab, icon: Users, label: 'Usuarios' },
       { id: 'backup' as Tab, icon: Database, label: 'Respaldo' },
     ] : []),
@@ -233,11 +234,8 @@ function SettingsContent() {
     <AppShell>
     <div className="flex h-full flex-col bg-gray-50">
         {/* Page toolbar */}
-
         <div className="flex items-center justify-between bg-white border-b px-4 py-2.5 shrink-0">
-
           <h1 className="text-lg font-bold text-gray-900">⚙️ Configuración</h1>
-
         </div>
 
       <div className="flex flex-1 overflow-hidden">
@@ -395,7 +393,6 @@ function SettingsContent() {
                     setSaving(true);
                     try {
                       await put<any>('/tenants/change-plan', { plan: planId, paymentMethod: 'pending' });
-                      // Reload tenant data and update store + localStorage
                       const t = await get<any>('/tenants/current');
                       setTenant(t);
                       localStorage.setItem('pos_tenant', JSON.stringify(t));
@@ -407,7 +404,6 @@ function SettingsContent() {
 
                   return (
                     <div className="space-y-4">
-                      {/* Trial banner */}
                       {isTrial && !trialExpired && (
                         <div className="rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 p-4 text-white">
                           <div className="flex items-center justify-between">
@@ -434,7 +430,6 @@ function SettingsContent() {
                         </div>
                       )}
 
-                      {/* Plan cards */}
                       <div className="rounded-xl border bg-white p-5 space-y-4">
                         <h3 className="text-sm font-bold text-gray-800">Planes disponibles</h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -482,7 +477,6 @@ function SettingsContent() {
                         </div>
                       </div>
 
-                      {/* Tenant metadata */}
                       <div className="grid grid-cols-4 gap-3">
                         <div className="rounded-lg bg-gray-50 p-3"><p className="text-[10px] text-gray-400 font-medium uppercase">Plan</p><p className="text-sm font-bold text-gray-900 capitalize">{isTrial ? 'Prueba' : currentPlan}</p></div>
                         <div className="rounded-lg bg-gray-50 p-3"><p className="text-[10px] text-gray-400 font-medium uppercase">Estado</p><p className={`text-sm font-bold capitalize ${tenant.subscriptionStatus === 'active' ? 'text-green-600' : tenant.subscriptionStatus === 'trial' ? 'text-blue-600' : 'text-red-600'}`}>{tenant.subscriptionStatus === 'trial' ? 'Prueba' : tenant.subscriptionStatus === 'active' ? 'Activo' : tenant.subscriptionStatus}</p></div>
@@ -570,7 +564,6 @@ function SettingsContent() {
                         ))}
                       </div>
                     </div>
-                    {/* Preview */}
                     <div className="p-5 bg-gray-50">
                       <p className="text-xs font-medium text-gray-500 mb-3">Vista Previa</p>
                       <div className={`mx-auto w-64 rounded-lg border bg-white p-4 font-mono shadow ${templates.comandaFontSize === 'small' ? 'text-[10px]' : templates.comandaFontSize === 'large' ? 'text-sm' : 'text-xs'}`}>
@@ -618,7 +611,6 @@ function SettingsContent() {
                         ))}
                       </div>
                     </div>
-                    {/* Preview */}
                     <div className="p-5 bg-gray-50">
                       <p className="text-xs font-medium text-gray-500 mb-3">Vista Previa</p>
                       <div className="mx-auto w-64 rounded-lg border bg-white p-4 font-mono text-xs shadow">
@@ -664,6 +656,13 @@ function SettingsContent() {
                 }} disabled={saving} className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-40">
                   <Save size={16} /> {saving ? 'Guardando...' : 'Guardar Plantillas'}
                 </button>
+              </div>
+            )}
+
+            {/* ═══ PRINTER ═══ */}
+            {tab === 'printer' && (
+              <div className="rounded-xl border bg-white p-6">
+                <PrintSettings />
               </div>
             )}
 
@@ -728,8 +727,6 @@ function SettingsContent() {
             {tab === 'backup' && (
               <div className="space-y-6">
                 <h2 className="text-lg font-bold text-gray-900">Respaldo de Datos</h2>
-
-                {/* Export full backup */}
                 <div className="rounded-xl border bg-white p-5 space-y-3">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100"><Database size={20} className="text-blue-600" /></div>
@@ -758,8 +755,6 @@ function SettingsContent() {
                     {saving ? <><Loader2 size={16} className="animate-spin" /> Exportando...</> : <><Download size={16} /> Descargar Backup JSON</>}
                   </button>
                 </div>
-
-                {/* Export as CSV */}
                 <div className="rounded-xl border bg-white p-5 space-y-3">
                   <h3 className="text-sm font-bold text-gray-900">Exportar por Módulo (CSV)</h3>
                   <p className="text-xs text-gray-500">Descarga datos individuales en formato CSV para Excel.</p>
@@ -787,8 +782,6 @@ function SettingsContent() {
                     ))}
                   </div>
                 </div>
-
-                {/* Info */}
                 <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">
                   <p className="text-xs text-amber-700"><strong>Nota:</strong> La importación de datos se gestiona desde el panel de Super Admin. Si necesitas restaurar un backup, contacta al administrador del sistema.</p>
                 </div>
